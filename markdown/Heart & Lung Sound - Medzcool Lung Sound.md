@@ -1,0 +1,7 @@
+1. [Bronchial Breath Sounds](https://t.me/ArchiveAnyFileBot?start=9840186692232367)
+2. [Crackles (Rales)](https://t.me/ArchiveAnyFileBot?start=9909580889543088)
+3. [Rhonchi](https://t.me/ArchiveAnyFileBot?start=8798997385864744)
+4. [Stridor](https://t.me/ArchiveAnyFileBot?start=4861435478894824)
+5. [Vesicular Breath Sounds - Normal Lung Sounds](https://t.me/ArchiveAnyFileBot?start=3495377474679203)
+6. [Wheezing (expiratory)](https://t.me/ArchiveAnyFileBot?start=2181360443421187)
+7. [ les (Rales)](https://t.me/ArchiveAnyFileBot?start=0938361627797931)

@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown Files Viewer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.4;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .search-container {
+            margin: 15px 0;
+            position: relative;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 12px 40px 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            font-size: 16px;
+            background: white;
+            transition: border-color 0.2s ease;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #667eea;
+            pointer-events: none;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+
+        .nav-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            background: #667eea;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .nav-btn:hover {
+            background: #764ba2;
+        }
+
+        .nav-btn.active {
+            background: #764ba2;
+        }
+
+        .content-area {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            min-height: 300px;
+        }
+
+        .config-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .config-section h3 {
+            color: white;
+            margin-bottom: 15px;
+        }
+
+        .config-section textarea {
+            width: 100%;
+            height: 120px;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            font-family: monospace;
+            font-size: 14px;
+            resize: vertical;
+        }
+
+        .config-section button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            background: #667eea;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .config-section button:hover {
+            background: #764ba2;
+        }
+
+        .subject-section {
+            margin-bottom: 20px;
+            background: #f8f9ff;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #e0e7ff;
+        }
+
+        .subject-header {
+            padding: 15px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #667eea;
+            color: white;
+            transition: background-color 0.2s ease;
+        }
+
+        .subject-header:hover {
+            background: #764ba2;
+        }
+
+        .subject-header h3 {
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+        .link-count {
+            font-weight: normal;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .toggle-icon {
+            font-size: 1.1rem;
+            transition: transform 0.2s ease;
+        }
+
+        .toggle-icon.expanded {
+            transform: rotate(180deg);
+        }
+
+        .subject-content {
+            padding: 0;
+            background: white;
+            display: none;
+            transition: all 0.3s ease;
+        }
+
+        .subject-content.expanded {
+            display: block;
+        }
+
+        .file-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .file-item:hover {
+            background: #f8f9ff;
+        }
+
+        .file-item:last-child {
+            border-bottom: none;
+        }
+
+        .file-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .file-name {
+            font-weight: 600;
+            color: #667eea;
+            font-size: 0.95rem;
+        }
+
+        .file-links {
+            background: #e0e7ff;
+            color: #667eea;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .file-tag {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        .file-tag:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .link-content {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .link-meta {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .category-info {
+            color: #666;
+            font-size: 0.8rem;
+            background: rgba(102, 126, 234, 0.1);
+            padding: 3px 10px;
+            border-radius: 12px;
+        }
+
+        .links-container {
+            margin-top: 20px;
+        }
+
+        .category-section {
+            margin-bottom: 20px;
+            background: #f8f9ff;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #e0e7ff;
+        }
+
+        .category-header {
+            padding: 15px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #667eea;
+            color: white;
+            transition: background-color 0.2s ease;
+        }
+
+        .category-header:hover {
+            background: #764ba2;
+        }
+
+        .category-title {
+            font-size: 1.2rem;
+            margin: 0;
+        }
+
+        .category-content {
+            padding: 0;
+            background: white;
+            display: none;
+            transition: all 0.3s ease;
+        }
+
+        .category-content.expanded {
+            display: block;
+        }
+
+        .link-item {
+            padding: 15px;
+            margin: 0;
+            border-bottom: 1px solid #f0f0f0;
+            transition: all 0.2s ease;
+        }
+
+        .link-item:hover {
+            background: #f8f9ff;
+        }
+
+        .link-item:last-child {
+            border-bottom: none;
+        }
+
+        .link-item a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1rem;
+        }
+
+        .link-item a:hover {
+            color: #764ba2;
+        }
+
+        .all-links-item {
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8f2ff 100%);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+            border-left: 4px solid #667eea;
+        }
+
+        .all-links-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .pagination button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination button.active {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            transform: translateY(-2px);
+        }
+
+        .pagination-info {
+            color: #666;
+            font-size: 14px;
+            margin: 0 15px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #667eea;
+            font-size: 1.1rem;
+        }
+
+        .error {
+            text-align: center;
+            padding: 50px;
+            color: #e74c3c;
+            background: rgba(231, 76, 60, 0.1);
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .nav-btn {
+                width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>📚 Markdown Files Viewer</h1>
+            <p>Browse and search through your markdown file collections</p>
+            
+            <div class="search-container">
+                <input type="text" class="search-box" id="searchInput" placeholder="Search through all links...">
+                <span class="search-icon">🔍</span>
+            </div>
+
+            <div class="nav-buttons">
+                <button class="nav-btn active" onclick="showView('home')">🏠 Home</button>
+                <button class="nav-btn" onclick="showView('all-links')">🔗 All Links</button>
+            </div>
+        </header>
+
+        <main class="content-area" id="contentArea">
+            <div class="loading">Loading markdown files...</div>
+        </main>
+    </div>
+
+    <script>
+        let markdownFiles = [];
+        let allLinks = [];
+        let currentView = 'home';
+        let currentPage = 1;
+        let currentExpandedSubject = null;
+        let currentExpandedCategory = null;
+        const linksPerPage = 50;
+
+        let markdownFiles = [];
+        let allLinks = [];
+        let currentView = 'home';
+        let currentPage = 1;
+        let currentExpandedSubject = null;
+        let currentExpandedCategory = null;
+        const linksPerPage = 50;
+
+        // Common markdown file patterns to try
+        const commonMarkdownFiles = [
+            // You can add known file names here as fallback
+            // This list will be tried if automatic discovery fails
+        ];
+
+        async function loadMarkdownFiles() {
+            showLoading('Discovering markdown files...');
+
+            try {
+                // First, try to get a list of files by attempting to fetch a directory listing
+                // Since we can't directly list directory contents in a static site,
+                // we'll try to fetch an index file or use a predefined list
+                
+                const discoveredFiles = await discoverMarkdownFiles();
+                
+                if (discoveredFiles.length === 0) {
+                    showError('No markdown files found in the markdown/ directory. Please ensure your .md files are uploaded to the markdown/ folder.');
+                    return;
+                }
+
+                markdownFiles = [];
+                allLinks = [];
+
+                for (const fileName of discoveredFiles) {
+                    try {
+                        const content = await fetchLocalFile(`./markdown/${fileName}`);
+                        const parsedContent = parseMarkdownContent(content);
+                        
+                        markdownFiles.push({
+                            name: fileName,
+                            path: `./markdown/${fileName}`,
+                            content: parsedContent,
+                            linkCount: parsedContent.links.length
+                        });
+
+                        parsedContent.links.forEach(link => {
+                            allLinks.push({
+                                ...link,
+                                fileName: fileName
+                            });
+                        });
+                    } catch (error) {
+                        console.warn(`Failed to load ${fileName}:`, error.message);
+                    }
+                }
+
+                if (markdownFiles.length === 0) {
+                    showError('No valid markdown files could be loaded. Check if files exist and are properly formatted.');
+                    return;
+                }
+
+                console.log(`Loaded ${markdownFiles.length} files with ${allLinks.length} total links`);
+                showView('home');
+
+            } catch (error) {
+                showError(`Failed to load markdown files: ${error.message}`);
+            }
+        }
+
+        async function discoverMarkdownFiles() {
+            // Method 1: Try to fetch a file list from a generated index
+            try {
+                const response = await fetch('./markdown/index.json');
+                if (response.ok) {
+                    const fileList = await response.json();
+                    console.log('Found index.json with file list:', fileList);
+                    return fileList.filter(file => file.endsWith('.md'));
+                }
+            } catch (error) {
+                console.log('No index.json found, trying alternative discovery...');
+            }
+
+            // Method 2: Try to fetch a simple text file list
+            try {
+                const response = await fetch('./markdown/files.txt');
+                if (response.ok) {
+                    const fileListText = await response.text();
+                    const fileList = fileListText.split('\n')
+                        .map(line => line.trim())
+                        .filter(line => line.length > 0 && line.endsWith('.md'));
+                    console.log('Found files.txt with file list:', fileList);
+                    return fileList;
+                }
+            } catch (error) {
+                console.log('No files.txt found, scanning for common patterns...');
+            }
+
+            // Method 3: Try a comprehensive scan of common file patterns
+            const discoveredFiles = [];
+            
+            // Try very common patterns first
+            const quickPatterns = [
+                'README.md', 'readme.md', 'index.md', 'main.md', 'links.md',
+                'bookmarks.md', 'resources.md', 'archive.md', 'collection.md'
+            ];
+
+            for (const fileName of quickPatterns) {
+                try {
+                    const response = await fetch(`./markdown/${fileName}`);
+                    if (response.ok) {
+                        discoveredFiles.push(fileName);
+                        console.log(`Found file: ${fileName}`);
+                    }
+                } catch (error) {
+                    // File doesn't exist, continue
+                }
+            }
+
+            // If we found some files already, return them
+            if (discoveredFiles.length > 0) {
+                return discoveredFiles;
+            }
+
+            // Method 4: Try subject-based patterns
+            const subjects = [
+                'Psychology', 'Health', 'Technology', 'Science', 'Business', 
+                'Education', 'Philosophy', 'History', 'Art', 'Music', 'Sports',
+                'Travel', 'Food', 'Finance', 'Programming', 'Design', 'Writing',
+                'Research', 'Academic', 'Personal', 'Work', 'Hobby', 'Learning'
+            ];
+            
+            const topics = [
+                'Basics', 'Advanced', 'Introduction', 'Guide', 'Reference', 
+                'Tips', 'Strategies', 'Resources', 'Links', 'Bookmarks',
+                'Collection', 'Archive', 'Notes', 'Research', 'Study'
+            ];
+            
+            // Try subject-topic combinations
+            for (const subject of subjects) {
+                for (const topic of topics) {
+                    const fileName = `${subject} - ${topic}.md`;
+                    try {
+                        const response = await fetch(`./markdown/${fileName}`);
+                        if (response.ok) {
+                            discoveredFiles.push(fileName);
+                            console.log(`Found file: ${fileName}`);
+                        }
+                    } catch (error) {
+                        // File doesn't exist, continue
+                    }
+                }
+                
+                // Also try just subject names
+                const subjectFileName = `${subject}.md`;
+                try {
+                    const response = await fetch(`./markdown/${subjectFileName}`);
+                    if (response.ok && !discoveredFiles.includes(subjectFileName)) {
+                        discoveredFiles.push(subjectFileName);
+                        console.log(`Found file: ${subjectFileName}`);
+                    }
+                } catch (error) {
+                    // File doesn't exist, continue
+                }
+            }
+
+            return discoveredFiles;
+        }
+
+        async function fetchLocalFile(path) {
+            const response = await fetch(path);
+            if (!response.ok) {
+                throw new Error(`Failed to fetch ${path}: ${response.status}`);
+            }
+            return await response.text();
+        }
+
+        function parseMarkdownContent(content) {
+            const lines = content.split('\n');
+            const categories = [];
+            let currentCategory = null;
+            let links = [];
+
+            for (const line of lines) {
+                const trimmed = line.trim();
+                
+                const headingMatch = trimmed.match(/^\*\*(.+?)\*\*$/);
+                if (headingMatch) {
+                    if (currentCategory) {
+                        categories.push(currentCategory);
+                    }
+                    currentCategory = {
+                        title: headingMatch[1],
+                        links: []
+                    };
+                    continue;
+                }
+
+                const numberedLinkMatch = trimmed.match(/^\d+\.\s*\[([^\]]+)\]\(([^)]+)\)/);
+                const directLinkMatch = trimmed.match(/^\[([^\]]+)\]\(([^)]+)\)/);
+                
+                const linkMatch = numberedLinkMatch || directLinkMatch;
+                
+                if (linkMatch) {
+                    const link = {
+                        title: linkMatch[1],
+                        url: linkMatch[2],
+                        category: currentCategory ? currentCategory.title : 'Uncategorized'
+                    };
+
+                    if (currentCategory) {
+                        currentCategory.links.push(link);
+                    }
+                    links.push(link);
+                }
+            }
+
+            if (currentCategory) {
+                categories.push(currentCategory);
+            }
+
+            if (categories.length === 0 && links.length > 0) {
+                categories.push({
+                    title: 'All Links',
+                    links: links
+                });
+            }
+
+            return { categories, links };
+        }
+
+        function extractSubjectFromFilename(filename) {
+            const parts = filename.split(' - ');
+            if (parts.length >= 2) {
+                return parts[0].trim();
+            }
+            return filename.replace('.md', '').replace(/[-_]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        }
+
+        function extractDisplayNameFromFilename(filename) {
+            const parts = filename.split(' - ');
+            let displayName = '';
+            
+            if (parts.length >= 2) {
+                displayName = parts.slice(1).join(' - ').replace('.md', '');
+            } else {
+                displayName = filename.replace('.md', '');
+            }
+            
+            return displayName.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        }
+
+        function organizeFilesBySubject() {
+            const subjects = {};
+            
+            markdownFiles.forEach(file => {
+                const subject = extractSubjectFromFilename(file.name);
+                
+                if (!subjects[subject]) {
+                    subjects[subject] = [];
+                }
+                
+                file.displayName = extractDisplayNameFromFilename(file.name);
+                subjects[subject].push(file);
+            });
+            
+            return subjects;
+        }
+
+        function showView(view) {
+            currentView = view;
+            currentExpandedSubject = null;
+            currentExpandedCategory = null;
+            
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            
+            const buttons = document.querySelectorAll('.nav-btn');
+            buttons.forEach(btn => {
+                if ((view === 'home' && btn.textContent.includes('Home')) ||
+                    (view === 'all-links' && btn.textContent.includes('All Links'))) {
+                    btn.classList.add('active');
+                }
+            });
+
+            switch(view) {
+                case 'home':
+                    showHome();
+                    break;
+                case 'all-links':
+                    showAllLinks();
+                    break;
+            }
+        }
+
+        function showConfig() {
+            let html = `
+                <h2>⚙️ Configuration</h2>
+                <div class="config-section">
+                    <h3>Markdown Files List</h3>
+                    <p style="color: white; margin-bottom: 10px;">
+                        Enter the names of your markdown files (one per line). 
+                        Files should be in the markdown/ directory.
+                    </p>
+                    <textarea id="fileListInput" placeholder="Example:
+Psychology - Cognitive Behavioral Therapy.md
+Psychology - Memory and Learning.md
+Health - Nutrition Basics.md
+Technology - Web Development.md">${fileList.join('\n')}</textarea>
+                    <button onclick="updateFileList()">Update File List</button>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.1); border-radius: 10px; padding: 20px; margin-top: 20px;">
+                    <h3 style="color: white; margin-bottom: 15px;">📁 Setup Instructions</h3>
+                    <div style="color: white; line-height: 1.6;">
+                        <p><strong>1. File Structure:</strong></p>
+                        <pre style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 5px; margin: 10px 0;">your-project/
+├── index.html (this file)
+└── markdown/
+    ├── Psychology - CBT.md
+    ├── Health - Nutrition.md
+    └── ...</pre>
+                        
+                        <p><strong>2. File Naming Convention:</strong></p>
+                        <p>Use format: <code style="background: rgba(0,0,0,0.2); padding: 2px 5px; border-radius: 3px;">Subject - Topic.md</code></p>
+                        
+                        <p><strong>3. Markdown Format:</strong></p>
+                        <pre style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 5px; margin: 10px 0;">**Category Name**
+1. [Link Title](https://example.com)
+2. [Another Link](https://example2.com)
+
+**Another Category**
+1. [More Links](https://example3.com)</pre>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('contentArea').innerHTML = html;
+        }
+
+        function updateFileList() {
+            const input = document.getElementById('fileListInput');
+            fileList = input.value.split('\n')
+                .map(line => line.trim())
+                .filter(line => line.length > 0);
+            
+            if (fileList.length > 0) {
+                loadMarkdownFiles();
+            } else {
+                showError('Please enter at least one markdown file name.');
+            }
+        }
+
+        function showHome() {
+            if (markdownFiles.length === 0) {
+                document.getElementById('contentArea').innerHTML = 
+                    '<div class="loading">No markdown files loaded. Please check Config to set up your files.</div>';
+                return;
+            }
+
+            const subjects = organizeFilesBySubject();
+            
+            let html = '<h2>📚 Subject Categories</h2>';
+            
+            Object.keys(subjects).sort().forEach(subject => {
+                const files = subjects[subject];
+                const totalLinks = files.reduce((sum, file) => sum + file.linkCount, 0);
+                const subjectId = subject.replace(/[^a-zA-Z0-9]/g, '_');
+                
+                html += `
+                    <div class="subject-section">
+                        <div class="subject-header" onclick="toggleSubject('${subjectId}')">
+                            <h3>📖 ${subject} <span class="link-count">(${totalLinks} links)</span></h3>
+                            <span class="toggle-icon" id="toggle-${subjectId}">▼</span>
+                        </div>
+                        <div class="subject-content" id="content-${subjectId}">
+                `;
+                
+                files.forEach(file => {
+                    html += `
+                        <div class="file-item" onclick="showFileContent('${file.name}')">
+                            <div class="file-info">
+                                <span class="file-name">📄 ${file.displayName}</span>
+                                <span class="file-links">${file.linkCount} links</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += '</div></div>';
+            });
+
+            document.getElementById('contentArea').innerHTML = html;
+        }
+
+        function toggleSubject(subjectId) {
+            if (currentExpandedSubject && currentExpandedSubject !== subjectId) {
+                const oldContent = document.getElementById(`content-${currentExpandedSubject}`);
+                const oldToggle = document.getElementById(`toggle-${currentExpandedSubject}`);
+                if (oldContent && oldToggle) {
+                    oldContent.classList.remove('expanded');
+                    oldToggle.classList.remove('expanded');
+                }
+            }
+
+            const content = document.getElementById(`content-${subjectId}`);
+            const toggle = document.getElementById(`toggle-${subjectId}`);
+            
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                toggle.classList.remove('expanded');
+                currentExpandedSubject = null;
+            } else {
+                content.classList.add('expanded');
+                toggle.classList.add('expanded');
+                currentExpandedSubject = subjectId;
+            }
+        }
+
+        function showFileContent(fileName) {
+            const file = markdownFiles.find(f => f.name === fileName);
+            if (!file) return;
+
+            currentExpandedCategory = null;
+
+            let html = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>📄 ${file.displayName || extractDisplayNameFromFilename(fileName)}</h2>
+                    <button class="nav-btn" onclick="showView('home')">← Back to Home</button>
+                </div>
+                <div class="links-container">
+            `;
+
+            if (file.content.categories.length === 0) {
+                html += '<p>No links found in this file.</p>';
+            } else {
+                file.content.categories.forEach((category, index) => {
+                    if (category.links.length > 0) {
+                        const categoryId = `category_${index}`;
+                        html += `
+                            <div class="category-section">
+                                <div class="category-header" onclick="toggleCategory('${categoryId}')">
+                                    <h3 class="category-title">${category.title} (${category.links.length} links)</h3>
+                                    <span class="toggle-icon" id="toggle-${categoryId}">▼</span>
+                                </div>
+                                <div class="category-content" id="content-${categoryId}">
+                        `;
+                        
+                        category.links.forEach(link => {
+                            html += `
+                                <div class="link-item">
+                                    <a href="${link.url}" target="_blank" rel="noopener noreferrer">
+                                        ${link.title}
+                                    </a>
+                                </div>
+                            `;
+                        });
+
+                        html += '</div></div>';
+                    }
+                });
+            }
+
+            html += '</div>';
+            document.getElementById('contentArea').innerHTML = html;
+        }
+
+        function toggleCategory(categoryId) {
+            if (currentExpandedCategory && currentExpandedCategory !== categoryId) {
+                const oldContent = document.getElementById(`content-${currentExpandedCategory}`);
+                const oldToggle = document.getElementById(`toggle-${currentExpandedCategory}`);
+                if (oldContent && oldToggle) {
+                    oldContent.classList.remove('expanded');
+                    oldToggle.classList.remove('expanded');
+                }
+            }
+
+            const content = document.getElementById(`content-${categoryId}`);
+            const toggle = document.getElementById(`toggle-${categoryId}`);
+            
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                toggle.classList.remove('expanded');
+                currentExpandedCategory = null;
+            } else {
+                content.classList.add('expanded');
+                toggle.classList.add('expanded');
+                currentExpandedCategory = categoryId;
+            }
+        }
+
+        function showAllLinks(page = 1) {
+            currentPage = page;
+            
+            if (allLinks.length === 0) {
+                document.getElementById('contentArea').innerHTML = 
+                    '<div class="loading">No links found. Please load markdown files first.</div>';
+                return;
+            }
+
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            let filteredLinks = allLinks;
+
+            if (searchTerm) {
+                filteredLinks = allLinks.filter(link => 
+                    link.title.toLowerCase().includes(searchTerm) ||
+                    link.category.toLowerCase().includes(searchTerm) ||
+                    link.fileName.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            const totalPages = Math.ceil(filteredLinks.length / linksPerPage);
+            const startIndex = (page - 1) * linksPerPage;
+            const endIndex = startIndex + linksPerPage;
+            const pageLinks = filteredLinks.slice(startIndex, endIndex);
+
+            let html = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>🔗 All Links (${filteredLinks.length} found)</h2>
+                </div>
+            `;
+
+            if (pageLinks.length === 0) {
+                html += '<p>No links match your search criteria.</p>';
+            } else {
+                html += '<div class="links-container">';
+                
+                pageLinks.forEach(link => {
+                    const file = markdownFiles.find(f => f.name === link.fileName);
+                    const displayName = file ? file.displayName : extractDisplayNameFromFilename(link.fileName);
+                    
+                    html += `
+                        <div class="all-links-item">
+                            <div class="link-content">
+                                <a href="${link.url}" target="_blank" rel="noopener noreferrer">
+                                    ${link.title}
+                                </a>
+                                <div class="link-meta">
+                                    <span class="file-tag" onclick="showFileContent('${link.fileName}')" title="View all links from ${displayName}">
+                                        📄 ${displayName}
+                                    </span>
+                                    <span class="category-info">🏷️ ${link.category}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += '</div>';
+
+                if (totalPages > 1) {
+                    html += createPaginationHTML(page, totalPages, filteredLinks.length);
+                }
+            }
+
+            document.getElementById('contentArea').innerHTML = html;
+        }
+
+        function createPaginationHTML(currentPage, totalPages, totalItems) {
+            let html = '<div class="pagination">';
+            
+            html += `<button onclick="showAllLinks(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>← Previous</button>`;
+            
+            const startPage = Math.max(1, currentPage - 2);
+            const endPage = Math.min(totalPages, currentPage + 2);
+            
+            if (startPage > 1) {
+                html += `<button onclick="showAllLinks(1)">1</button>`;
+                if (startPage > 2) {
+                    html += '<span>...</span>';
+                }
+            }
+            
+            for (let i = startPage; i <= endPage; i++) {
+                html += `<button onclick="showAllLinks(${i})" ${i === currentPage ? 'class="active"' : ''}>${i}</button>`;
+            }
+            
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    html += '<span>...</span>';
+                }
+                html += `<button onclick="showAllLinks(${totalPages})">${totalPages}</button>`;
+            }
+            
+            html += `<button onclick="showAllLinks(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>Next →</button>`;
+            
+            const startItem = (currentPage - 1) * linksPerPage + 1;
+            const endItem = Math.min(currentPage * linksPerPage, totalItems);
+            html += `<div class="pagination-info">Showing ${startItem}-${endItem} of ${totalItems}</div>`;
+            
+            html += '</div>';
+            return html;
+        }
+
+        function showLoading(message) {
+            document.getElementById('contentArea').innerHTML = `<div class="loading">${message}</div>`;
+        }
+
+        function showError(message) {
+            document.getElementById('contentArea').innerHTML = `<div class="error">❌ ${message}</div>`;
+        }
+
+        document.getElementById('searchInput').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase().trim();
+            
+            if (searchTerm === '') {
+                if (currentView === 'all-links') {
+                    showAllLinks(1);
+                }
+                return;
+            }
+
+            if (currentView !== 'all-links') {
+                currentView = 'all-links';
+                document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.nav-btn').forEach(btn => {
+                    if (btn.textContent.includes('All Links')) {
+                        btn.classList.add('active');
+                    }
+                });
+            }
+            
+            showAllLinks(1);
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case 'k':
+                        e.preventDefault();
+                        document.getElementById('searchInput').focus();
+                        break;
+                }
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadMarkdownFiles();
+            
+            setTimeout(() => {
+                document.getElementById('searchInput').focus();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
