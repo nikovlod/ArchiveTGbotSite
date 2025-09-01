@@ -416,6 +416,32 @@
             margin: 20px 0;
         }
 
+        .setup-instructions {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+            color: white;
+        }
+
+        .setup-instructions h3 {
+            margin-bottom: 15px;
+        }
+
+        .setup-instructions pre {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+
+        .setup-instructions code {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 15px;
@@ -450,11 +476,12 @@
             <div class="nav-buttons">
                 <button class="nav-btn active" onclick="showView('home')">🏠 Home</button>
                 <button class="nav-btn" onclick="showView('all-links')">🔗 All Links</button>
+                <button class="nav-btn" onclick="showView('config')">⚙️ Config</button>
             </div>
         </header>
 
         <main class="content-area" id="contentArea">
-            <div class="loading">Loading markdown files...</div>
+            <div class="loading">Initializing...</div>
         </main>
     </div>
 
@@ -467,35 +494,27 @@
         let currentExpandedCategory = null;
         const linksPerPage = 50;
 
-        let markdownFiles = [];
-        let allLinks = [];
-        let currentView = 'home';
-        let currentPage = 1;
-        let currentExpandedSubject = null;
-        let currentExpandedCategory = null;
-        const linksPerPage = 50;
-
-        // Common markdown file patterns to try
-        const commonMarkdownFiles = [
-            // You can add known file names here as fallback
-            // This list will be tried if automatic discovery fails
+        // Default file list - users can modify this in config
+        let fileList = [
+            'README.md',
+            'index.md',
+            'links.md',
+            'bookmarks.md'
         ];
 
         async function loadMarkdownFiles() {
             showLoading('Discovering markdown files...');
 
             try {
-                // First, try to get a list of files by attempting to fetch a directory listing
-                // Since we can't directly list directory contents in a static site,
-                // we'll try to fetch an index file or use a predefined list
-                
                 const discoveredFiles = await discoverMarkdownFiles();
                 
                 if (discoveredFiles.length === 0) {
-                    showError('No markdown files found in the markdown/ directory. Please ensure your .md files are uploaded to the markdown/ folder.');
+                    showSetupInstructions();
                     return;
                 }
 
+                showLoading(`Loading ${discoveredFiles.length} files...`);
+                
                 markdownFiles = [];
                 allLinks = [];
 
@@ -523,7 +542,7 @@
                 }
 
                 if (markdownFiles.length === 0) {
-                    showError('No valid markdown files could be loaded. Check if files exist and are properly formatted.');
+                    showError('No valid markdown files could be loaded. Please check the Config section for setup instructions.');
                     return;
                 }
 
@@ -531,21 +550,24 @@
                 showView('home');
 
             } catch (error) {
-                showError(`Failed to load markdown files: ${error.message}`);
+                console.error('Error loading files:', error);
+                showError(`Failed to load markdown files: ${error.message}. Check the Config section for setup help.`);
             }
         }
 
         async function discoverMarkdownFiles() {
+            const discoveredFiles = [];
+            
             // Method 1: Try to fetch a file list from a generated index
             try {
                 const response = await fetch('./markdown/index.json');
                 if (response.ok) {
-                    const fileList = await response.json();
-                    console.log('Found index.json with file list:', fileList);
-                    return fileList.filter(file => file.endsWith('.md'));
+                    const fileListData = await response.json();
+                    console.log('Found index.json with file list:', fileListData);
+                    return fileListData.filter(file => file.endsWith('.md'));
                 }
             } catch (error) {
-                console.log('No index.json found, trying alternative discovery...');
+                console.log('No index.json found');
             }
 
             // Method 2: Try to fetch a simple text file list
@@ -553,78 +575,28 @@
                 const response = await fetch('./markdown/files.txt');
                 if (response.ok) {
                     const fileListText = await response.text();
-                    const fileList = fileListText.split('\n')
+                    const fileListData = fileListText.split('\n')
                         .map(line => line.trim())
                         .filter(line => line.length > 0 && line.endsWith('.md'));
-                    console.log('Found files.txt with file list:', fileList);
-                    return fileList;
+                    console.log('Found files.txt with file list:', fileListData);
+                    return fileListData;
                 }
             } catch (error) {
-                console.log('No files.txt found, scanning for common patterns...');
+                console.log('No files.txt found');
             }
 
-            // Method 3: Try a comprehensive scan of common file patterns
-            const discoveredFiles = [];
-            
-            // Try very common patterns first
-            const quickPatterns = [
+            // Method 3: Try common file names
+            const commonFiles = [
                 'README.md', 'readme.md', 'index.md', 'main.md', 'links.md',
                 'bookmarks.md', 'resources.md', 'archive.md', 'collection.md'
             ];
 
-            for (const fileName of quickPatterns) {
+            for (const fileName of commonFiles) {
                 try {
                     const response = await fetch(`./markdown/${fileName}`);
                     if (response.ok) {
                         discoveredFiles.push(fileName);
                         console.log(`Found file: ${fileName}`);
-                    }
-                } catch (error) {
-                    // File doesn't exist, continue
-                }
-            }
-
-            // If we found some files already, return them
-            if (discoveredFiles.length > 0) {
-                return discoveredFiles;
-            }
-
-            // Method 4: Try subject-based patterns
-            const subjects = [
-                'Psychology', 'Health', 'Technology', 'Science', 'Business', 
-                'Education', 'Philosophy', 'History', 'Art', 'Music', 'Sports',
-                'Travel', 'Food', 'Finance', 'Programming', 'Design', 'Writing',
-                'Research', 'Academic', 'Personal', 'Work', 'Hobby', 'Learning'
-            ];
-            
-            const topics = [
-                'Basics', 'Advanced', 'Introduction', 'Guide', 'Reference', 
-                'Tips', 'Strategies', 'Resources', 'Links', 'Bookmarks',
-                'Collection', 'Archive', 'Notes', 'Research', 'Study'
-            ];
-            
-            // Try subject-topic combinations
-            for (const subject of subjects) {
-                for (const topic of topics) {
-                    const fileName = `${subject} - ${topic}.md`;
-                    try {
-                        const response = await fetch(`./markdown/${fileName}`);
-                        if (response.ok) {
-                            discoveredFiles.push(fileName);
-                            console.log(`Found file: ${fileName}`);
-                        }
-                    } catch (error) {
-                        // File doesn't exist, continue
-                    }
-                }
-                
-                // Also try just subject names
-                const subjectFileName = `${subject}.md`;
-                try {
-                    const response = await fetch(`./markdown/${subjectFileName}`);
-                    if (response.ok && !discoveredFiles.includes(subjectFileName)) {
-                        discoveredFiles.push(subjectFileName);
-                        console.log(`Found file: ${subjectFileName}`);
                     }
                 } catch (error) {
                     // File doesn't exist, continue
@@ -637,7 +609,7 @@
         async function fetchLocalFile(path) {
             const response = await fetch(path);
             if (!response.ok) {
-                throw new Error(`Failed to fetch ${path}: ${response.status}`);
+                throw new Error(`Failed to fetch ${path}: ${response.status} ${response.statusText}`);
             }
             return await response.text();
         }
@@ -651,6 +623,7 @@
             for (const line of lines) {
                 const trimmed = line.trim();
                 
+                // Check for category headers (bold text)
                 const headingMatch = trimmed.match(/^\*\*(.+?)\*\*$/);
                 if (headingMatch) {
                     if (currentCategory) {
@@ -663,6 +636,7 @@
                     continue;
                 }
 
+                // Check for links (numbered or direct)
                 const numberedLinkMatch = trimmed.match(/^\d+\.\s*\[([^\]]+)\]\(([^)]+)\)/);
                 const directLinkMatch = trimmed.match(/^\[([^\]]+)\]\(([^)]+)\)/);
                 
@@ -686,6 +660,7 @@
                 categories.push(currentCategory);
             }
 
+            // If no categories found but links exist, create a default category
             if (categories.length === 0 && links.length > 0) {
                 categories.push({
                     title: 'All Links',
@@ -739,12 +714,14 @@
             currentExpandedSubject = null;
             currentExpandedCategory = null;
             
+            // Update active nav button
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
             
             const buttons = document.querySelectorAll('.nav-btn');
             buttons.forEach(btn => {
                 if ((view === 'home' && btn.textContent.includes('Home')) ||
-                    (view === 'all-links' && btn.textContent.includes('All Links'))) {
+                    (view === 'all-links' && btn.textContent.includes('All Links')) ||
+                    (view === 'config' && btn.textContent.includes('Config'))) {
                     btn.classList.add('active');
                 }
             });
@@ -755,6 +732,9 @@
                     break;
                 case 'all-links':
                     showAllLinks();
+                    break;
+                case 'config':
+                    showConfig();
                     break;
             }
         }
@@ -774,29 +754,38 @@ Psychology - Memory and Learning.md
 Health - Nutrition Basics.md
 Technology - Web Development.md">${fileList.join('\n')}</textarea>
                     <button onclick="updateFileList()">Update File List</button>
+                    <button onclick="loadMarkdownFiles()" style="margin-left: 10px;">Reload Files</button>
                 </div>
                 
-                <div style="background: rgba(255,255,255,0.1); border-radius: 10px; padding: 20px; margin-top: 20px;">
-                    <h3 style="color: white; margin-bottom: 15px;">📁 Setup Instructions</h3>
-                    <div style="color: white; line-height: 1.6;">
+                <div class="setup-instructions">
+                    <h3>📁 Setup Instructions</h3>
+                    <div style="line-height: 1.6;">
                         <p><strong>1. File Structure:</strong></p>
-                        <pre style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 5px; margin: 10px 0;">your-project/
+                        <pre>your-project/
 ├── index.html (this file)
 └── markdown/
     ├── Psychology - CBT.md
     ├── Health - Nutrition.md
-    └── ...</pre>
+    └── README.md</pre>
                         
                         <p><strong>2. File Naming Convention:</strong></p>
-                        <p>Use format: <code style="background: rgba(0,0,0,0.2); padding: 2px 5px; border-radius: 3px;">Subject - Topic.md</code></p>
+                        <p>Use format: <code>Subject - Topic.md</code></p>
                         
                         <p><strong>3. Markdown Format:</strong></p>
-                        <pre style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 5px; margin: 10px 0;">**Category Name**
+                        <pre>**Category Name**
 1. [Link Title](https://example.com)
 2. [Another Link](https://example2.com)
 
 **Another Category**
 1. [More Links](https://example3.com)</pre>
+
+                        <p><strong>4. Auto-Discovery:</strong></p>
+                        <p>The app will automatically try to find these files:</p>
+                        <ul style="margin-left: 20px;">
+                            <li>README.md, index.md, links.md, bookmarks.md</li>
+                            <li>Files listed in markdown/index.json</li>
+                            <li>Files listed in markdown/files.txt</li>
+                        </ul>
                     </div>
                 </div>
             `;
@@ -811,10 +800,27 @@ Technology - Web Development.md">${fileList.join('\n')}</textarea>
                 .filter(line => line.length > 0);
             
             if (fileList.length > 0) {
-                loadMarkdownFiles();
+                showLoading('Updating file list...');
+                setTimeout(() => {
+                    loadMarkdownFiles();
+                }, 500);
             } else {
                 showError('Please enter at least one markdown file name.');
             }
+        }
+
+        function showSetupInstructions() {
+            let html = `
+                <div class="error">
+                    <h2>📁 No Markdown Files Found</h2>
+                    <p>No markdown files were discovered in the markdown/ directory.</p>
+                    <p>Click on the <strong>Config</strong> tab above for setup instructions.</p>
+                    <button class="nav-btn" onclick="showView('config')" style="margin-top: 15px;">
+                        ⚙️ Go to Config
+                    </button>
+                </div>
+            `;
+            document.getElementById('contentArea').innerHTML = html;
         }
 
         function showHome() {
@@ -860,6 +866,7 @@ Technology - Web Development.md">${fileList.join('\n')}</textarea>
         }
 
         function toggleSubject(subjectId) {
+            // Close previously expanded subject
             if (currentExpandedSubject && currentExpandedSubject !== subjectId) {
                 const oldContent = document.getElementById(`content-${currentExpandedSubject}`);
                 const oldToggle = document.getElementById(`toggle-${currentExpandedSubject}`);
@@ -932,6 +939,7 @@ Technology - Web Development.md">${fileList.join('\n')}</textarea>
         }
 
         function toggleCategory(categoryId) {
+            // Close previously expanded category
             if (currentExpandedCategory && currentExpandedCategory !== categoryId) {
                 const oldContent = document.getElementById(`content-${currentExpandedCategory}`);
                 const oldToggle = document.getElementById(`toggle-${currentExpandedCategory}`);
@@ -1066,6 +1074,7 @@ Technology - Web Development.md">${fileList.join('\n')}</textarea>
             document.getElementById('contentArea').innerHTML = `<div class="error">❌ ${message}</div>`;
         }
 
+        // Search functionality
         document.getElementById('searchInput').addEventListener('input', function() {
             const searchTerm = this.value.toLowerCase().trim();
             
@@ -1089,6 +1098,7 @@ Technology - Web Development.md">${fileList.join('\n')}</textarea>
             showAllLinks(1);
         });
 
+        // Keyboard shortcuts
         document.addEventListener('keydown', function(e) {
             if (e.ctrlKey || e.metaKey) {
                 switch(e.key) {
@@ -1100,12 +1110,9 @@ Technology - Web Development.md">${fileList.join('\n')}</textarea>
             }
         });
 
+        // Initialize the app
         document.addEventListener('DOMContentLoaded', function() {
             loadMarkdownFiles();
-            
-            setTimeout(() => {
-                document.getElementById('searchInput').focus();
-            }, 1000);
         });
     </script>
 </body>
