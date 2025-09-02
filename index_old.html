@@ -95,11 +95,6 @@
             background: #764ba2;
         }
 
-        .nav-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
         .nav-btn.active {
             background: #764ba2;
         }
@@ -447,37 +442,6 @@
             border-radius: 3px;
         }
 
-        .lazy-load-trigger {
-            color: #667eea;
-            cursor: pointer;
-            padding: 10px;
-            text-align: center;
-            border: 1px dashed #667eea;
-            border-radius: 10px;
-            margin: 10px 0;
-            background: rgba(102, 126, 234, 0.05);
-            transition: all 0.2s ease;
-        }
-
-        .lazy-load-trigger:hover {
-            background: rgba(102, 126, 234, 0.1);
-        }
-
-        .loading-spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2px solid #667eea;
-            border-radius: 50%;
-            border-top-color: transparent;
-            animation: spin 1s ease-in-out infinite;
-            margin-right: 10px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
         @media (max-width: 768px) {
             .container {
                 padding: 15px;
@@ -512,12 +476,12 @@
             <div class="nav-buttons">
                 <button class="nav-btn active" onclick="showView('home')">🏠 Home</button>
                 <button class="nav-btn" onclick="showView('all-links')">🔗 All Links</button>
-                <button class="nav-btn" onclick="showView('config')">⚙️ Config</button>
+                <!--<button class="nav-btn" onclick="showView('config')">⚙️ Config</button>-->
             </div>
         </header>
 
         <main class="content-area" id="contentArea">
-            <div class="loading">Ready to browse your files...</div>
+            <div class="loading">Initializing...</div>
         </main>
     </div>
 
@@ -528,8 +492,6 @@
         let currentPage = 1;
         let currentExpandedSubject = null;
         let currentExpandedCategory = null;
-        let isLoading = false;
-        let loadingCache = new Map();
         const linksPerPage = 50;
 
         // Default file list - users can modify this in config
@@ -540,35 +502,10 @@
             'bookmarks.md'
         ];
 
-        // Cache for discovered files to avoid repeated discovery
-        let discoveredFilesCache = null;
-        let lastDiscoveryTime = 0;
-        const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+        async function loadMarkdownFiles() {
+            showLoading('Discovering markdown files...');
 
-        async function initializeApp() {
-            // Show immediate interface without waiting for files
-            showView('home');
-            
-            // Enable navigation buttons immediately
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.disabled = false;
-            });
-
-            // Start lazy loading in the background
-            setTimeout(() => {
-                if (currentView === 'home') {
-                    loadMarkdownFilesLazy();
-                }
-            }, 100);
-        }
-
-        async function loadMarkdownFilesLazy() {
-            if (isLoading) return;
-            
             try {
-                isLoading = true;
-                showPartialLoading('Discovering files...');
-
                 const discoveredFiles = await discoverMarkdownFiles();
                 
                 if (discoveredFiles.length === 0) {
@@ -576,194 +513,105 @@
                     return;
                 }
 
-                // Load files in batches to prevent UI blocking
-                await loadFilesInBatches(discoveredFiles);
-
-                if (markdownFiles.length === 0) {
-                    showError('No valid markdown files could be loaded. Please check the Config section.');
-                    return;
-                }
-
-                console.log(`Loaded ${markdownFiles.length} files with ${allLinks.length} total links`);
+                showLoading(`Loading ${discoveredFiles.length} files...`);
                 
-                // Refresh current view if still on home
-                if (currentView === 'home') {
-                    showView('home');
-                }
+                markdownFiles = [];
+                allLinks = [];
 
-            } catch (error) {
-                console.error('Error loading files:', error);
-                showError(`Failed to load markdown files: ${error.message}`);
-            } finally {
-                isLoading = false;
-            }
-        }
-
-        async function loadFilesInBatches(discoveredFiles) {
-            const batchSize = 3;
-            let loadedCount = 0;
-            
-            for (let i = 0; i < discoveredFiles.length; i += batchSize) {
-                const batch = discoveredFiles.slice(i, i + batchSize);
-                
-                // Update progress
-                showPartialLoading(`Loading files... (${loadedCount}/${discoveredFiles.length})`);
-                
-                // Process batch with concurrent loading
-                const batchPromises = batch.map(async fileName => {
+                for (const fileName of discoveredFiles) {
                     try {
-                        // Check cache first
-                        const cacheKey = `${fileName}-${await getFileModTime(fileName)}`;
-                        if (loadingCache.has(cacheKey)) {
-                            return loadingCache.get(cacheKey);
-                        }
-
                         const content = await fetchLocalFile(`./markdown/${fileName}`);
                         const parsedContent = parseMarkdownContent(content);
                         
-                        const fileData = {
+                        markdownFiles.push({
                             name: fileName,
                             path: `./markdown/${fileName}`,
                             content: parsedContent,
                             linkCount: parsedContent.links.length
-                        };
+                        });
 
-                        // Cache the result
-                        loadingCache.set(cacheKey, fileData);
-                        
-                        return fileData;
-                    } catch (error) {
-                        console.warn(`Failed to load ${fileName}:`, error.message);
-                        return null;
-                    }
-                });
-
-                const batchResults = await Promise.all(batchPromises);
-                
-                // Process successful results
-                for (const result of batchResults) {
-                    if (result) {
-                        markdownFiles.push(result);
-                        
-                        result.content.links.forEach(link => {
+                        parsedContent.links.forEach(link => {
                             allLinks.push({
                                 ...link,
-                                fileName: result.name
+                                fileName: fileName
                             });
                         });
-                        
-                        loadedCount++;
+                    } catch (error) {
+                        console.warn(`Failed to load ${fileName}:`, error.message);
                     }
                 }
 
-                // Small delay to prevent UI blocking
-                await new Promise(resolve => setTimeout(resolve, 10));
-            }
-        }
+                if (markdownFiles.length === 0) {
+                    showError('No valid markdown files could be loaded. Please check the Config section for setup instructions.');
+                    return;
+                }
 
-        async function getFileModTime(fileName) {
-            try {
-                const response = await fetch(`./markdown/${fileName}`, { method: 'HEAD' });
-                return response.headers.get('last-modified') || Date.now();
-            } catch {
-                return Date.now();
+                console.log(`Loaded ${markdownFiles.length} files with ${allLinks.length} total links`);
+                showView('home');
+
+            } catch (error) {
+                console.error('Error loading files:', error);
+                showError(`Failed to load markdown files: ${error.message}. Check the Config section for setup help.`);
             }
         }
 
         async function discoverMarkdownFiles() {
-            const now = Date.now();
-            
-            // Return cached results if still valid
-            if (discoveredFilesCache && (now - lastDiscoveryTime) < CACHE_DURATION) {
-                return discoveredFilesCache;
-            }
-
             const discoveredFiles = [];
             
-            // Method 1: Try index.json (fastest)
+            // Method 1: Try to fetch a file list from a generated index
             try {
-                const response = await Promise.race([
-                    fetch('./markdown/index.json'),
-                    new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 2000))
-                ]);
-                
+                const response = await fetch('./markdown/index.json');
                 if (response.ok) {
                     const fileListData = await response.json();
-                    const mdFiles = fileListData.filter(file => file.endsWith('.md'));
-                    discoveredFilesCache = mdFiles;
-                    lastDiscoveryTime = now;
-                    return mdFiles;
+                    console.log('Found index.json with file list:', fileListData);
+                    return fileListData.filter(file => file.endsWith('.md'));
                 }
             } catch (error) {
-                console.log('No index.json found or timeout');
+                console.log('No index.json found');
             }
 
-            // Method 2: Try files.txt
+            // Method 2: Try to fetch a simple text file list
             try {
-                const response = await Promise.race([
-                    fetch('./markdown/files.txt'),
-                    new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 2000))
-                ]);
-                
+                const response = await fetch('./markdown/files.txt');
                 if (response.ok) {
                     const fileListText = await response.text();
-                    const mdFiles = fileListText.split('\n')
+                    const fileListData = fileListText.split('\n')
                         .map(line => line.trim())
                         .filter(line => line.length > 0 && line.endsWith('.md'));
-                    discoveredFilesCache = mdFiles;
-                    lastDiscoveryTime = now;
-                    return mdFiles;
+                    console.log('Found files.txt with file list:', fileListData);
+                    return fileListData;
                 }
             } catch (error) {
-                console.log('No files.txt found or timeout');
+                console.log('No files.txt found');
             }
 
-            // Method 3: Try common files (parallel requests)
+            // Method 3: Try common file names
             const commonFiles = [
                 'README.md', 'readme.md', 'index.md', 'main.md', 'links.md',
                 'bookmarks.md', 'resources.md', 'archive.md', 'collection.md'
             ];
 
-            const fileChecks = commonFiles.map(async fileName => {
+            for (const fileName of commonFiles) {
                 try {
-                    const response = await Promise.race([
-                        fetch(`./markdown/${fileName}`, { method: 'HEAD' }),
-                        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 1000))
-                    ]);
-                    
-                    return response.ok ? fileName : null;
-                } catch {
-                    return null;
+                    const response = await fetch(`./markdown/${fileName}`);
+                    if (response.ok) {
+                        discoveredFiles.push(fileName);
+                        console.log(`Found file: ${fileName}`);
+                    }
+                } catch (error) {
+                    // File doesn't exist, continue
                 }
-            });
+            }
 
-            const results = await Promise.all(fileChecks);
-            const foundFiles = results.filter(Boolean);
-
-            discoveredFilesCache = foundFiles;
-            lastDiscoveryTime = now;
-            return foundFiles;
+            return discoveredFiles;
         }
 
         async function fetchLocalFile(path) {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 5000);
-            
-            try {
-                const response = await fetch(path, { 
-                    signal: controller.signal,
-                    cache: 'force-cache' 
-                });
-                clearTimeout(timeoutId);
-                
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch ${path}: ${response.status}`);
-                }
-                return await response.text();
-            } catch (error) {
-                clearTimeout(timeoutId);
-                throw error;
+            const response = await fetch(path);
+            if (!response.ok) {
+                throw new Error(`Failed to fetch ${path}: ${response.status} ${response.statusText}`);
             }
+            return await response.text();
         }
 
         function parseMarkdownContent(content) {
@@ -775,6 +623,7 @@
             for (const line of lines) {
                 const trimmed = line.trim();
                 
+                // Check for category headers (bold text)
                 const headingMatch = trimmed.match(/^\*\*(.+?)\*\*$/);
                 if (headingMatch) {
                     if (currentCategory) {
@@ -787,6 +636,7 @@
                     continue;
                 }
 
+                // Check for links (numbered or direct)
                 const numberedLinkMatch = trimmed.match(/^\d+\.\s*\[([^\]]+)\]\(([^)]+)\)/);
                 const directLinkMatch = trimmed.match(/^\[([^\]]+)\]\(([^)]+)\)/);
                 
@@ -810,6 +660,7 @@
                 categories.push(currentCategory);
             }
 
+            // If no categories found but links exist, create a default category
             if (categories.length === 0 && links.length > 0) {
                 categories.push({
                     title: 'All Links',
@@ -903,7 +754,7 @@ Psychology - Memory and Learning.md
 Health - Nutrition Basics.md
 Technology - Web Development.md">${fileList.join('\n')}</textarea>
                     <button onclick="updateFileList()">Update File List</button>
-                    <button onclick="forceReloadFiles()" style="margin-left: 10px;">Force Reload</button>
+                    <button onclick="loadMarkdownFiles()" style="margin-left: 10px;">Reload Files</button>
                 </div>
                 
                 <div class="setup-instructions">
@@ -928,11 +779,12 @@ Technology - Web Development.md">${fileList.join('\n')}</textarea>
 **Another Category**
 1. [More Links](https://example3.com)</pre>
 
-                        <p><strong>4. Performance Tips:</strong></p>
+                        <p><strong>4. Auto-Discovery:</strong></p>
+                        <p>The app will automatically try to find these files:</p>
                         <ul style="margin-left: 20px;">
-                            <li>Create markdown/index.json with your file list for faster loading</li>
-                            <li>Or create markdown/files.txt with one filename per line</li>
-                            <li>Files are cached for 5 minutes to improve performance</li>
+                            <li>README.md, index.md, links.md, bookmarks.md</li>
+                            <li>Files listed in markdown/index.json</li>
+                            <li>Files listed in markdown/files.txt</li>
                         </ul>
                     </div>
                 </div>
@@ -948,27 +800,13 @@ Technology - Web Development.md">${fileList.join('\n')}</textarea>
                 .filter(line => line.length > 0);
             
             if (fileList.length > 0) {
-                clearCache();
-                showPartialLoading('Updating file list...');
+                showLoading('Updating file list...');
                 setTimeout(() => {
-                    loadMarkdownFilesLazy();
-                }, 100);
+                    loadMarkdownFiles();
+                }, 500);
             } else {
                 showError('Please enter at least one markdown file name.');
             }
-        }
-
-        function forceReloadFiles() {
-            clearCache();
-            markdownFiles = [];
-            allLinks = [];
-            loadMarkdownFilesLazy();
-        }
-
-        function clearCache() {
-            discoveredFilesCache = null;
-            lastDiscoveryTime = 0;
-            loadingCache.clear();
         }
 
         function showSetupInstructions() {
@@ -987,18 +825,8 @@ Technology - Web Development.md">${fileList.join('\n')}</textarea>
 
         function showHome() {
             if (markdownFiles.length === 0) {
-                let html = `
-                    <h2>📚 Subject Categories</h2>
-                    <div class="lazy-load-trigger" onclick="loadMarkdownFilesLazy()">
-                        ${isLoading ? '<span class="loading-spinner"></span>Click to discover and load markdown files...' : 'Click to discover and load markdown files...'}
-                    </div>
-                    <div class="setup-instructions">
-                        <h3>💡 Quick Start</h3>
-                        <p>Place your markdown files in the <code>markdown/</code> directory and click above to load them.</p>
-                        <p>For faster loading, create an <code>index.json</code> or <code>files.txt</code> in the markdown directory.</p>
-                    </div>
-                `;
-                document.getElementById('contentArea').innerHTML = html;
+                document.getElementById('contentArea').innerHTML = 
+                    '<div class="loading">No markdown files loaded. Please check Config to set up your files.</div>';
                 return;
             }
 
@@ -1138,21 +966,9 @@ Technology - Web Development.md">${fileList.join('\n')}</textarea>
         function showAllLinks(page = 1) {
             currentPage = page;
             
-            // Trigger loading if not loaded yet
-            if (allLinks.length === 0 && markdownFiles.length === 0 && !isLoading) {
-                let html = `
-                    <h2>🔗 All Links</h2>
-                    <div class="lazy-load-trigger" onclick="loadMarkdownFilesLazy()">
-                        Click to load markdown files first...
-                    </div>
-                `;
-                document.getElementById('contentArea').innerHTML = html;
-                return;
-            }
-            
             if (allLinks.length === 0) {
                 document.getElementById('contentArea').innerHTML = 
-                    '<div class="loading">Loading markdown files...</div>';
+                    '<div class="loading">No links found. Please load markdown files first.</div>';
                 return;
             }
 
@@ -1250,22 +1066,6 @@ Technology - Web Development.md">${fileList.join('\n')}</textarea>
             return html;
         }
 
-        function showPartialLoading(message) {
-            if (currentView === 'home') {
-                const contentArea = document.getElementById('contentArea');
-                const existingContent = contentArea.innerHTML;
-                
-                if (!existingContent.includes('loading-spinner')) {
-                    contentArea.innerHTML = `
-                        <h2>📚 Subject Categories</h2>
-                        <div class="loading">
-                            <span class="loading-spinner"></span>${message}
-                        </div>
-                    `;
-                }
-            }
-        }
-
         function showLoading(message) {
             document.getElementById('contentArea').innerHTML = `<div class="loading">${message}</div>`;
         }
@@ -1274,50 +1074,28 @@ Technology - Web Development.md">${fileList.join('\n')}</textarea>
             document.getElementById('contentArea').innerHTML = `<div class="error">❌ ${message}</div>`;
         }
 
-        // Search functionality with debouncing
-        let searchTimeout;
+        // Search functionality
         document.getElementById('searchInput').addEventListener('input', function() {
-            clearTimeout(searchTimeout);
+            const searchTerm = this.value.toLowerCase().trim();
             
-            searchTimeout = setTimeout(() => {
-                const searchTerm = this.value.toLowerCase().trim();
-                
-                if (searchTerm === '') {
-                    if (currentView === 'all-links') {
-                        showAllLinks(1);
+            if (searchTerm === '') {
+                if (currentView === 'all-links') {
+                    showAllLinks(1);
+                }
+                return;
+            }
+
+            if (currentView !== 'all-links') {
+                currentView = 'all-links';
+                document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.nav-btn').forEach(btn => {
+                    if (btn.textContent.includes('All Links')) {
+                        btn.classList.add('active');
                     }
-                    return;
-                }
-
-                // Auto-load files if searching but no files loaded
-                if (allLinks.length === 0 && !isLoading) {
-                    loadMarkdownFilesLazy().then(() => {
-                        if (currentView !== 'all-links') {
-                            currentView = 'all-links';
-                            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-                            document.querySelectorAll('.nav-btn').forEach(btn => {
-                                if (btn.textContent.includes('All Links')) {
-                                    btn.classList.add('active');
-                                }
-                            });
-                        }
-                        showAllLinks(1);
-                    });
-                    return;
-                }
-
-                if (currentView !== 'all-links') {
-                    currentView = 'all-links';
-                    document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-                    document.querySelectorAll('.nav-btn').forEach(btn => {
-                        if (btn.textContent.includes('All Links')) {
-                            btn.classList.add('active');
-                        }
-                    });
-                }
-                
-                showAllLinks(1);
-            }, 300);
+                });
+            }
+            
+            showAllLinks(1);
         });
 
         // Keyboard shortcuts
@@ -1328,31 +1106,13 @@ Technology - Web Development.md">${fileList.join('\n')}</textarea>
                         e.preventDefault();
                         document.getElementById('searchInput').focus();
                         break;
-                    case 'r':
-                        if (e.shiftKey) {
-                            e.preventDefault();
-                            forceReloadFiles();
-                        }
-                        break;
                 }
             }
         });
 
-        // Initialize the app immediately
+        // Initialize the app
         document.addEventListener('DOMContentLoaded', function() {
-            initializeApp();
-        });
-
-        // Preload common files when user hovers over load trigger
-        document.addEventListener('mouseover', function(e) {
-            if (e.target.classList.contains('lazy-load-trigger') && !isLoading) {
-                // Start preloading on hover
-                setTimeout(() => {
-                    if (!isLoading) {
-                        discoverMarkdownFiles();
-                    }
-                }, 200);
-            }
+            loadMarkdownFiles();
         });
     </script>
 </body>
