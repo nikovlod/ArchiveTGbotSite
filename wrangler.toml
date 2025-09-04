@@ -1,0 +1,12 @@
+name = "archivetgbot"
+main = "src/worker.js"
+workers_dev = true
+compatibility_date = "2025-08-30"
+
+[observability]
+enabled = true
+head_sampling_rate = 1
+
+[vars]
+GITHUB_OWNER = "nikovlod"
+GITHUB_REPO = "ArchiveTGbotSite"
