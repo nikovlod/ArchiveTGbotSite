@@ -557,7 +557,7 @@ async function handleFileRequest(update, bot, csvManager, command) {
       return;
     }
 
-    const caption = `*Found file!*\n\n*ID:* \`${numericalFileId}\`\n*Name:* \`${fileData.file_name}\`\n*Type:* ${fileData.file_type}\n\n*File will be deleted after 1.5 hours.*`;
+    const caption = `*Found file! 😊*\n\n*ID:* \`${numericalFileId}\`\n*Name:* \`${fileData.file_name}\`\n*Type:* ${fileData.file_type}\n\n*File will be deleted after 1.5 hours.*`;
 
     let sentMessage;
     if (fileData.file_type === "Photo") {
