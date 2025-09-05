@@ -13,7 +13,7 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 50%, #16213e 100%);
+            background: linear-gradient(135deg, #1d2b64 0%, #0d0d1a 100%);
             min-height: 100vh;
             color: #e0e0e0;
             line-height: 1.4;
@@ -26,28 +26,20 @@
         }
 
         .header {
-            background: rgba(30, 30, 50, 0.95);
+            background: rgba(18, 18, 28, 0.85);
             border-radius: 15px;
             padding: 20px;
             margin-bottom: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(100, 100, 150, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
             text-align: center;
         }
 
         .header h1 {
             font-size: 2rem;
-            background: linear-gradient(135deg, #00d4aa 0%, #007cf0 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            background-clip: text;
             margin-bottom: 8px;
-            text-shadow: 0 0 30px rgba(0, 212, 170, 0.3);
-        }
-
-        .header p {
-            color: #b0b0b0;
         }
 
         .search-container {
@@ -58,24 +50,17 @@
         .search-box {
             width: 100%;
             padding: 12px 40px 12px 15px;
-            border: 1px solid #404060;
+            border: 1px solid #4a4a6a;
             border-radius: 20px;
             font-size: 16px;
-            background: rgba(20, 20, 40, 0.8);
+            background: #2c2c3e;
             color: #e0e0e0;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
+            transition: border-color 0.2s ease;
         }
 
         .search-box:focus {
             outline: none;
-            border-color: #00d4aa;
-            box-shadow: 0 0 20px rgba(0, 212, 170, 0.2);
-            background: rgba(20, 20, 40, 0.95);
-        }
-
-        .search-box::placeholder {
-            color: #808080;
+            border-color: #8a9fff;
         }
 
         .search-icon {
@@ -83,7 +68,7 @@
             right: 15px;
             top: 50%;
             transform: translateY(-50%);
-            color: #00d4aa;
+            color: #667eea;
             pointer-events: none;
         }
 
@@ -97,54 +82,46 @@
 
         .nav-btn {
             padding: 10px 20px;
-            border: none;
+            border: 1px solid #667eea;
             border-radius: 20px;
-            background: linear-gradient(135deg, #007cf0 0%, #00d4aa 100%);
+            background: transparent;
             color: white;
             font-size: 14px;
             font-weight: 500;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 124, 240, 0.2);
+            transition: background-color 0.2s ease;
         }
 
         .nav-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 124, 240, 0.3);
-            background: linear-gradient(135deg, #0056b3 0%, #00a080 100%);
+            background: #667eea;
         }
 
         .nav-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
-            transform: none;
         }
 
         .nav-btn.active {
-            background: linear-gradient(135deg, #00d4aa 0%, #007cf0 100%);
-            box-shadow: 0 8px 25px rgba(0, 212, 170, 0.3);
+            background: #667eea;
         }
 
         .content-area {
-            background: rgba(30, 30, 50, 0.95);
+            background: rgba(18, 18, 28, 0.85);
             border-radius: 15px;
             padding: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(100, 100, 150, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
             min-height: 300px;
         }
 
         .config-section {
-            background: rgba(20, 20, 40, 0.8);
+            background: rgba(0, 0, 0, 0.2);
             border-radius: 15px;
             padding: 25px;
             margin-bottom: 20px;
-            border: 1px solid rgba(100, 100, 150, 0.2);
         }
 
         .config-section h3 {
-            color: #00d4aa;
+            color: white;
             margin-bottom: 15px;
         }
 
@@ -152,17 +129,13 @@
             width: 100%;
             height: 120px;
             padding: 12px;
-            border: 1px solid #404060;
+            border: 1px solid #4a4a6a;
             border-radius: 10px;
-            background: rgba(10, 10, 30, 0.9);
-            color: #e0e0e0;
+            background: #2c2c3e;
             font-family: monospace;
             font-size: 14px;
             resize: vertical;
-        }
-
-        .config-section textarea::placeholder {
-            color: #808080;
+            color: #e0e0e0;
         }
 
         .config-section button {
@@ -170,24 +143,22 @@
             padding: 10px 20px;
             border: none;
             border-radius: 20px;
-            background: linear-gradient(135deg, #007cf0 0%, #00d4aa 100%);
+            background: #5a67d8;
             color: white;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: background-color 0.2s ease;
         }
 
         .config-section button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 124, 240, 0.3);
+            background: #4c51bf;
         }
 
         .subject-section {
             margin-bottom: 20px;
-            background: rgba(40, 40, 70, 0.6);
+            background: #252538;
             border-radius: 10px;
             overflow: hidden;
-            border: 1px solid rgba(100, 100, 150, 0.2);
-            backdrop-filter: blur(5px);
+            border: 1px solid #3a3a5a;
         }
 
         .subject-header {
@@ -196,14 +167,13 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: linear-gradient(135deg, #007cf0 0%, #00d4aa 100%);
+            background: #667eea;
             color: white;
-            transition: all 0.3s ease;
+            transition: background-color 0.2s ease;
         }
 
         .subject-header:hover {
-            background: linear-gradient(135deg, #0056b3 0%, #00a080 100%);
-            box-shadow: 0 4px 15px rgba(0, 124, 240, 0.2);
+            background: #764ba2;
         }
 
         .subject-header h3 {
@@ -228,7 +198,7 @@
 
         .subject-content {
             padding: 0;
-            background: rgba(20, 20, 40, 0.8);
+            background: #252538;
             display: none;
             transition: all 0.3s ease;
         }
@@ -239,14 +209,13 @@
 
         .file-item {
             padding: 12px 15px;
-            border-bottom: 1px solid rgba(100, 100, 150, 0.1);
+            border-bottom: 1px solid #3a3a5a;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: background-color 0.2s ease;
         }
 
         .file-item:hover {
-            background: rgba(0, 212, 170, 0.1);
-            border-left: 3px solid #00d4aa;
+            background: rgba(102, 126, 234, 0.1);
         }
 
         .file-item:last-child {
@@ -261,13 +230,13 @@
 
         .file-name {
             font-weight: 600;
-            color: #00d4aa;
+            color: #8a9fff;
             font-size: 0.95rem;
         }
 
         .file-links {
-            background: rgba(0, 212, 170, 0.2);
-            color: #00d4aa;
+            background: rgba(102, 126, 234, 0.2);
+            color: #a6baff;
             padding: 3px 10px;
             border-radius: 12px;
             font-size: 0.8rem;
@@ -275,7 +244,7 @@
         }
 
         .file-tag {
-            background: linear-gradient(135deg, #007cf0 0%, #00d4aa 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 4px 12px;
             border-radius: 15px;
@@ -285,13 +254,12 @@
             transition: all 0.3s ease;
             display: inline-block;
             margin-right: 8px;
-            box-shadow: 0 2px 8px rgba(0, 124, 240, 0.2);
         }
 
         .file-tag:hover {
-            background: linear-gradient(135deg, #00d4aa 0%, #007cf0 100%);
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
             transform: translateY(-1px);
-            box-shadow: 0 5px 15px rgba(0, 212, 170, 0.3);
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.2);
         }
 
         .link-content {
@@ -308,9 +276,9 @@
         }
 
         .category-info {
-            color: #b0b0b0;
+            color: #bbb;
             font-size: 0.8rem;
-            background: rgba(100, 100, 150, 0.2);
+            background: rgba(102, 126, 234, 0.15);
             padding: 3px 10px;
             border-radius: 12px;
         }
@@ -321,11 +289,10 @@
 
         .category-section {
             margin-bottom: 20px;
-            background: rgba(40, 40, 70, 0.6);
+            background: #252538;
             border-radius: 10px;
             overflow: hidden;
-            border: 1px solid rgba(100, 100, 150, 0.2);
-            backdrop-filter: blur(5px);
+            border: 1px solid #3a3a5a;
         }
 
         .category-header {
@@ -334,14 +301,13 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: linear-gradient(135deg, #007cf0 0%, #00d4aa 100%);
+            background: #667eea;
             color: white;
-            transition: all 0.3s ease;
+            transition: background-color 0.2s ease;
         }
 
         .category-header:hover {
-            background: linear-gradient(135deg, #0056b3 0%, #00a080 100%);
-            box-shadow: 0 4px 15px rgba(0, 124, 240, 0.2);
+            background: #764ba2;
         }
 
         .category-title {
@@ -351,7 +317,7 @@
 
         .category-content {
             padding: 0;
-            background: rgba(20, 20, 40, 0.8);
+            background: #252538;
             display: none;
             transition: all 0.3s ease;
         }
@@ -363,13 +329,12 @@
         .link-item {
             padding: 15px;
             margin: 0;
-            border-bottom: 1px solid rgba(100, 100, 150, 0.1);
+            border-bottom: 1px solid #3a3a5a;
             transition: all 0.2s ease;
         }
 
         .link-item:hover {
-            background: rgba(0, 212, 170, 0.1);
-            border-left: 3px solid #00d4aa;
+            background: rgba(102, 126, 234, 0.1);
         }
 
         .link-item:last-child {
@@ -377,44 +342,28 @@
         }
 
         .link-item a {
-            color: #00d4aa;
+            color: #8a9fff;
             text-decoration: none;
             font-weight: 500;
             font-size: 1rem;
-            transition: color 0.3s ease;
         }
 
         .link-item a:hover {
-            color: #007cf0;
-            text-shadow: 0 0 10px rgba(0, 212, 170, 0.3);
+            color: #a6baff;
         }
 
         .all-links-item {
-            background: linear-gradient(135deg, rgba(0, 212, 170, 0.1) 0%, rgba(0, 124, 240, 0.1) 100%);
+            background: linear-gradient(135deg, #2a2a3f 0%, #202030 100%);
             border-radius: 10px;
             padding: 15px;
             margin-bottom: 10px;
             transition: all 0.3s ease;
-            border-left: 4px solid #00d4aa;
-            backdrop-filter: blur(5px);
+            border-left: 4px solid #8a9fff;
         }
 
         .all-links-item:hover {
             transform: translateX(5px);
-            box-shadow: 0 8px 25px rgba(0, 212, 170, 0.2);
-            background: linear-gradient(135deg, rgba(0, 212, 170, 0.2) 0%, rgba(0, 124, 240, 0.2) 100%);
-        }
-
-        .all-links-item a {
-            color: #00d4aa;
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s ease;
-        }
-
-        .all-links-item a:hover {
-            color: #007cf0;
-            text-shadow: 0 0 10px rgba(0, 212, 170, 0.3);
+            box-shadow: 0 3px 12px rgba(138, 159, 255, 0.15);
         }
 
         .pagination {
@@ -430,36 +379,30 @@
             padding: 8px 16px;
             border: none;
             border-radius: 20px;
-            background: linear-gradient(135deg, #007cf0 0%, #00d4aa 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             cursor: pointer;
             transition: all 0.3s ease;
             font-size: 14px;
-            box-shadow: 0 4px 15px rgba(0, 124, 240, 0.2);
         }
 
         .pagination button:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 212, 170, 0.3);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
         }
 
         .pagination button:disabled {
             opacity: 0.5;
             cursor: not-allowed;
-            transform: none;
         }
 
         .pagination button.active {
-            background: linear-gradient(135deg, #00d4aa 0%, #007cf0 100%);
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
             transform: translateY(-2px);
         }
 
-        .pagination span {
-            color: #b0b0b0;
-        }
-
         .pagination-info {
-            color: #b0b0b0;
+            color: #a0a0b0;
             font-size: 14px;
             margin: 0 15px;
         }
@@ -467,81 +410,68 @@
         .loading {
             text-align: center;
             padding: 50px;
-            color: #00d4aa;
+            color: #8a9fff;
             font-size: 1.1rem;
         }
 
         .error {
             text-align: center;
             padding: 50px;
-            color: #ff6b6b;
-            background: rgba(255, 107, 107, 0.1);
+            color: #e74c3c;
+            background: rgba(231, 76, 60, 0.2);
             border-radius: 10px;
             margin: 20px 0;
-            border: 1px solid rgba(255, 107, 107, 0.2);
         }
 
         .setup-instructions {
-            background: rgba(20, 20, 40, 0.8);
+            background: rgba(0, 0, 0, 0.2);
             border-radius: 15px;
             padding: 25px;
             margin-top: 20px;
-            color: #e0e0e0;
-            border: 1px solid rgba(100, 100, 150, 0.2);
+            color: white;
         }
 
         .setup-instructions h3 {
             margin-bottom: 15px;
-            color: #00d4aa;
         }
 
         .setup-instructions pre {
             background: rgba(0, 0, 0, 0.4);
-            color: #f0f0f0;
             padding: 10px;
             border-radius: 5px;
             margin: 10px 0;
             overflow-x: auto;
-            border: 1px solid rgba(100, 100, 150, 0.2);
         }
 
         .setup-instructions code {
             background: rgba(0, 0, 0, 0.4);
-            color: #00d4aa;
             padding: 2px 5px;
             border-radius: 3px;
         }
 
-        .setup-instructions ul {
-            color: #b0b0b0;
-        }
-
         .lazy-load-trigger {
-            color: #00d4aa;
+            color: #8a9fff;
             cursor: pointer;
-            padding: 15px;
+            padding: 10px;
             text-align: center;
-            border: 2px dashed #00d4aa;
+            border: 1px dashed #8a9fff;
             border-radius: 10px;
             margin: 10px 0;
-            background: rgba(0, 212, 170, 0.05);
-            transition: all 0.3s ease;
-            backdrop-filter: blur(5px);
+            background: rgba(138, 159, 255, 0.1);
+            transition: all 0.2s ease;
         }
 
         .lazy-load-trigger:hover {
-            background: rgba(0, 212, 170, 0.15);
-            box-shadow: 0 4px 15px rgba(0, 212, 170, 0.2);
-            transform: translateY(-2px);
+            background: rgba(138, 159, 255, 0.15);
         }
 
         .loading-spinner {
             display: inline-block;
             width: 20px;
             height: 20px;
-            border: 2px solid #007cf0;
+            border: 2px solid #8a9fff;
             border-radius: 50%;
-            border-top-color: #00d4aa;
+            border-top-color: transparent;
             animation: spin 1s ease-in-out infinite;
             margin-right: 10px;
         }
@@ -550,38 +480,13 @@
             to { transform: rotate(360deg); }
         }
 
-        /* Scrollbar styling */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: rgba(20, 20, 40, 0.8);
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: linear-gradient(135deg, #007cf0 0%, #00d4aa 100%);
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(135deg, #00d4aa 0%, #007cf0 100%);
-        }
-
-        /* Selection styling */
-        ::selection {
-            background: rgba(0, 212, 170, 0.3);
-            color: white;
-        }
-
         @media (max-width: 768px) {
             .container {
                 padding: 15px;
             }
 
             .header h1 {
-                font-size: 1.8rem;
+                font-size: 2rem;
             }
 
             .nav-buttons {
@@ -591,18 +496,6 @@
 
             .nav-btn {
                 width: 200px;
-            }
-
-            .file-info {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 8px;
-            }
-
-            .link-meta {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 8px;
             }
         }
     </style>
@@ -1002,7 +895,7 @@
                 <h2>⚙️ Configuration</h2>
                 <div class="config-section">
                     <h3>Markdown Files List</h3>
-                    <p style="color: #b0b0b0; margin-bottom: 10px;">
+                    <p style="color: white; margin-bottom: 10px;">
                         Enter the names of your markdown files (one per line). 
                         Files should be in the markdown/ directory.
                     </p>
