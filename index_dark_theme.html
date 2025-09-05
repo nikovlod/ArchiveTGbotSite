@@ -553,37 +553,21 @@ font-weight:bold;
         let lastDiscoveryTime = 0;
         const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
-async function initializeApp() {
-            const contentArea = document.getElementById('contentArea');
-            try {
-                // Fetch the single pre-compiled data file
-                const response = await fetch('./data.json');
-                if (!response.ok) {
-                    throw new Error(`Could not load data.json. Did you run 'node build.js'?`);
+        async function initializeApp() {
+            // Show immediate interface without waiting for files
+            showView('home');
+            
+            // Enable navigation buttons immediately
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.disabled = false;
+            });
+
+            // Start lazy loading in the background
+            setTimeout(() => {
+                if (currentView === 'home') {
+                    loadMarkdownFilesLazy();
                 }
-
-                // Load the data
-                markdownFiles = await response.json();
-
-                // Populate allLinks from the loaded data
-                markdownFiles.forEach(file => {
-                    file.content.links.forEach(link => {
-                        allLinks.push({
-                            ...link,
-                            fileName: file.name
-                        });
-                    });
-                });
-
-                // Enable navigation and show the home view
-                document.querySelectorAll('.nav-btn').forEach(btn => btn.disabled = false);
-                showView('home');
-
-            } catch (error) {
-                console.error('Error initializing app:', error);
-                showSetupInstructions(); // Show setup if the data file is missing
-                showError(`Failed to load data: ${error.message}`);
-            }
+            }, 100);
         }
 
         async function loadMarkdownFilesLazy() {
