@@ -10,3 +10,7 @@ head_sampling_rate = 1
 [vars]
 GITHUB_OWNER = "nikovlod"
 GITHUB_REPO = "ArchiveTGbotSite"
+
+[triggers]
+# This runs the scheduled task at the start of every hour.
+crons = ["0 * * * *"]
