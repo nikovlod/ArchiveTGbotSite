@@ -542,14 +542,14 @@ async function handleFileUpload(update, bot, csvManager) {
     if (statusMessage.ok) await bot.deleteMessage(chatId, statusMessage.result.message_id);
 
     if (existingFile) {
-      await bot.sendMessage(chatId, `*⚠️ File already exists*\n\n*File Name:* \`${existingFile.fileData.file_name}\`\n*ID:* \`${existingFile.numericalId}\``);
+      await bot.sendMessage(chatId, `*⚠️ File already exists*\n\n*File Name:* \`${existingFile.fileData.file_name}\`\n*Numerical FileID:* \`${existingFile.numericalId}\``);
     } else {
       const addingMessage = await bot.sendMessage(chatId, "📝 Adding file to archive...");
       const numericalFileId = generateNumericalFileId();
       await csvManager.appendToCSV(numericalFileId, fileId, fileName, fileType);
       const totalFiles = await csvManager.getFileCount();
       if (addingMessage.ok) await bot.deleteMessage(chatId, addingMessage.result.message_id);
-      await bot.sendMessage(chatId, `*✅ File archived successfully!*\n\n*File Name:* \`${fileName}\`\n*ID:* \`${numericalFileId}\`\n\n*Total files:* ${totalFiles}`);
+      await bot.sendMessage(chatId, `*✅ File archived successfully!*\n\n*File Name:* \`${fileName}\`\n*Numerical File ID:* \`${numericalFileId}\`\n\n*Total files:* ${totalFiles}`);
     }
   } catch (error) {
     console.error('Error handling file upload:', error);
@@ -584,7 +584,7 @@ async function handleFileRequest(update, bot, csvManager, env) {
 
     const deleteDelayMs = parseInt(env.DELETE_DELAY_MS, 10) || 5400000;
     const deleteDelayMinutes = Math.round(deleteDelayMs / 60000);
-    const caption = `*Found file! 😊*\n\n*ID:* \`${numericalFileId}\`\n*Name:* \`${fileData.file_name}\`\n\n*This file will be deleted in ~${deleteDelayMinutes} minutes.*`;
+    const caption = `*Found file! 😊*\n\n*Numerical File ID:* \`${numericalFileId}\`\n*File Name:* \`${fileData.file_name}\`\n\n*This file will be deleted in ~${deleteDelayMinutes} minutes.*`;
 
     let sentMessage;
     if (fileData.file_type === "Photo") {
