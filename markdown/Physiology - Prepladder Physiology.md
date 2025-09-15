@@ -1,0 +1,82 @@
+**General physiology**
+[1. Homeostasis](https://t.me/ArchiveAnyFileBot?start=8872175601262005)
+[2. Body Fluids; Distribution and Management](https://t.me/ArchiveAnyFileBot?start=9651270367322069)
+[3. Cell Physiology](https://t.me/ArchiveAnyFileBot?start=2914497746358968)
+[4. Transport Across Cell Membrane](https://t.me/ArchiveAnyFileBot?start=7648503664544665)
+[1. Nerve And Neuron](https://t.me/ArchiveAnyFileBot?start=0876793350977317)
+[2. Resting Membrane Potential](https://t.me/ArchiveAnyFileBot?start=7646855271459064)
+[3. Action Potential in Neuron](https://t.me/ArchiveAnyFileBot?start=7413290778189982)
+[4. Nerve Fiber Classification](https://t.me/ArchiveAnyFileBot?start=5853536532305739)
+[5. Structural Functional Anatomy of Skeletal Muscle Part 1](https://t.me/ArchiveAnyFileBot?start=0759844830185457)
+[6. Structural Functional Anatomy of Skeletal Muscle Part 2](https://t.me/ArchiveAnyFileBot?start=1082941410546741)
+[7. Motor Unit](https://t.me/ArchiveAnyFileBot?start=2603964546661969)
+[8. Smooth Muscle](https://t.me/ArchiveAnyFileBot?start=4906289014574560)
+
+**Heart**
+[1. Live Conducting System of Heart](https://t.me/ArchiveAnyFileBot?start=4164180594005926)
+[2. Action Potential on Heart](https://t.me/ArchiveAnyFileBot?start=5616959049930261)
+[3. Live ECG Basic Concepts](https://t.me/ArchiveAnyFileBot?start=7246739416710701)
+[4. Live Cardiac Cycle](https://t.me/ArchiveAnyFileBot?start=5458260653164911)
+[5- Cardiac output](https://t.me/ArchiveAnyFileBot?start=8287608661556820)
+[6. Live Hemodynamics](https://t.me/ArchiveAnyFileBot?start=4516852695259039)
+[7. Live Blood Pressure It's Regulation](https://t.me/ArchiveAnyFileBot?start=4769759876538063)
+[8. Regional Circulation Coronary and Cerebral New](https://t.me/ArchiveAnyFileBot?start=8059119788313487)
+
+**Blood**
+[1. Hematopoiesis and Blood Cells](https://t.me/ArchiveAnyFileBot?start=4151867579676652)
+[2. Hemostasis-New ](https://t.me/ArchiveAnyFileBot?start=1844366264750477)
+
+**Renal**
+[1. Functional Anatomy of Renal Physiology](https://t.me/ArchiveAnyFileBot?start=2325346320781344)
+[2. GFR Its Regulation](https://t.me/ArchiveAnyFileBot?start=8269529406642452)
+[3. JG Appratus](https://t.me/ArchiveAnyFileBot?start=3846226039880652)
+[4. Clearance](https://t.me/ArchiveAnyFileBot?start=5036033276554783)
+[5. Tubular Transport Part 1](https://t.me/ArchiveAnyFileBot?start=9862721288708758)
+[6. Tubular Transport Part 2](https://t.me/ArchiveAnyFileBot?start=9752383483379814)
+[7- Acid secreation of kidney](https://t.me/ArchiveAnyFileBot?start=1552668217483180)
+[8. Counter Current System in Kidney](https://t.me/ArchiveAnyFileBot?start=8689111222869414)
+
+**Lungs**
+[1. Functional Anatomy of The Respiratory System new](https://t.me/ArchiveAnyFileBot?start=4109840600126435)
+[2. Mechanics of Respiration new](https://t.me/ArchiveAnyFileBot?start=1181762715050649)
+[3. Ventilation Perfusion of Lungs](https://t.me/ArchiveAnyFileBot?start=5502474815630694)
+[4.Compliance of Lung New](https://t.me/ArchiveAnyFileBot?start=3360596386769251)
+[5. Lung Volume Capacities New](https://t.me/ArchiveAnyFileBot?start=3043171615197767)
+[6. Principles of Gas Diffusion](https://t.me/ArchiveAnyFileBot?start=6758886422917615)
+[7. Oxygen Transport](https://t.me/ArchiveAnyFileBot?start=2236565783889635)
+[8. Carbon Dioxide Transport](https://t.me/ArchiveAnyFileBot?start=4106873008851770)
+[9. Regulation of Respiration](https://t.me/ArchiveAnyFileBot?start=5160527101993382)
+[10. Hypoxia](https://t.me/ArchiveAnyFileBot?start=5774094767586743)
+[11. High Altitude Physiology](https://t.me/ArchiveAnyFileBot?start=6202553280844096)
+[12. Deep Sea Diving](https://t.me/ArchiveAnyFileBot?start=1620813929144994)
+
+**GIT**
+[1. Motility of Git](https://t.me/ArchiveAnyFileBot?start=0455096934054060)
+[2. GI Hormones](https://t.me/ArchiveAnyFileBot?start=8075540553242581)
+[3. Secretion and Absorption](https://t.me/ArchiveAnyFileBot?start=0078083985967998)
+
+**Nervous system**
+[1. Synapse Pre Synaptic Events](https://t.me/ArchiveAnyFileBot?start=5071868354833353)
+[2. Synapse Post Synaptic Events](https://t.me/ArchiveAnyFileBot?start=3070663041321499)
+[3. Synaptic Inhibition](https://t.me/ArchiveAnyFileBot?start=2312348724298146)
+[4. Somato Sensory Receptor](https://t.me/ArchiveAnyFileBot?start=2544601906262511)
+[5. Nociceptor](https://t.me/ArchiveAnyFileBot?start=1724930095477786)
+[6. Proprioceptors and Reflexes](https://t.me/ArchiveAnyFileBot?start=7934856772585468)
+[None](https://t.me/ArchiveAnyFileBot?start=8000076527749893)
+[None](https://t.me/ArchiveAnyFileBot?start=7677124368265569)
+[9. Basal Ganglia Cerebellum](https://t.me/ArchiveAnyFileBot?start=4971172919656626)
+[10. Special Senses Visual and Auditory Receptors](https://t.me/ArchiveAnyFileBot?start=7586998679806483)
+[11. Special Senses Smell and Taste Receptors](https://t.me/ArchiveAnyFileBot?start=8462255692794665)
+[12. Hypothalamus and Limbic System](https://t.me/ArchiveAnyFileBot?start=2724376129237655)
+[13. EEG and Sleep](https://t.me/ArchiveAnyFileBot?start=7111228804800560)
+[14. Learning and Memory](https://t.me/ArchiveAnyFileBot?start=5558098156613017)
+
+**Endocrinology**
+[1. Mechanisms of Hormone Actions](https://t.me/ArchiveAnyFileBot?start=4519262641230928)
+[2. Pituitary Hormones](https://t.me/ArchiveAnyFileBot?start=0210034757127566)
+[3. Thyroid Hormones](https://t.me/ArchiveAnyFileBot?start=3514470454046783)
+[4. Endocrine Pancrease](https://t.me/ArchiveAnyFileBot?start=8361343415404551)
+[5. Hormonal Regulation of Calcium Balance](https://t.me/ArchiveAnyFileBot?start=1114530107965552)
+[6. Adrenal Physiology](https://t.me/ArchiveAnyFileBot?start=7092112110621081)
+[7. Male Reproductive Physiology](https://t.me/ArchiveAnyFileBot?start=3127913568862286)
+[8. Female Reproductive Physiology](https://t.me/ArchiveAnyFileBot?start=9351103157115920)
