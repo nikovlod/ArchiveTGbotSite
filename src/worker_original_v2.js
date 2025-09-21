@@ -500,45 +500,6 @@ class TelegramBot {
       console.error(`Error deleting message ${messageId}:`, error);
     }
   }
-
-  /**
-   * --- NEW FUNCTION ---
-   * Checks if a user is a member of the specified private channel.
-   * @param {string|number} channelId - The ID of the private channel (e.g., -100...).
-   * @param {number} userId - The ID of the user to check.
-   * @returns {Promise<boolean>} - True if the user is a member, false otherwise.
-   */
-  async isUserMemberOfChannel(channelId, userId) {
-    try {
-      const response = await fetch(`${this.apiUrl}/getChatMember`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          chat_id: channelId,
-          user_id: userId
-        })
-      });
-
-      if (!response.ok) {
-        console.error(`Telegram API error (getChatMember): ${response.status}`);
-        // This often happens if the bot is not an admin in the channel
-        return false;
-      }
-
-      const data = await response.json();
-      if (data.ok) {
-        const status = data.result.status;
-        // A user is considered a member if they are a 'creator', 'administrator', or 'member'.
-        return ['creator', 'administrator', 'member'].includes(status);
-      }
-      return false;
-    } catch (error) {
-      console.error('Error checking channel membership:', error);
-      return false;
-    }
-  }
 }
 
 function generateNumericalFileId(length = 16) {
@@ -672,27 +633,10 @@ async function handleDebug(update, bot, csvManager) {
 async function handleTelegramWebhook(request, env) {
   try {
     const update = await request.json();
-    if (!update.message || !update.message.from) return new Response('OK');
+    if (!update.message) return new Response('OK');
 
-    const bot = new TelegramBot(env.TELEGRAM_BOT_TOKEN);
-    const userId = update.message.from.id;
-    const chatId = update.message.chat.id;
-    const channelId = env.PRIVATE_CHANNEL_ID;
-
-    // --- AUTHORIZATION GATE ---
-    if (!channelId) {
-      console.warn("PRIVATE_CHANNEL_ID is not set. Bot is open to everyone.");
-    } else {
-      const isMember = await bot.isUserMemberOfChannel(channelId, userId);
-      if (!isMember) {
-        await bot.sendMessage(chatId, "⛔ Access Denied. You must be a subscriber of our private channel to use this bot.");
-        return new Response('OK'); // Stop processing for unauthorized users
-      }
-    }
-    // --- END AUTHORIZATION ---
-
-    // If the user is authorized, proceed with the original logic
     const csvManager = new StreamingGitHubCSVManager(env);
+    const bot = new TelegramBot(env.TELEGRAM_BOT_TOKEN);
     const message = update.message;
 
     if (message.document || message.photo || message.video) {
@@ -712,3 +656,5 @@ async function handleTelegramWebhook(request, env) {
     });
   }
 }
+
+
