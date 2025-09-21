@@ -455,112 +455,133 @@
         </main>
     </div>
 
-    <script>
-        let markdownFiles = [];
-        let allLinks = [];
-        let currentView = 'home';
-        let currentPage = 1;
-        let currentExpandedSubject = null;
-        let currentExpandedCategory = null;
-        const linksPerPage = 50;
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script>
+    let markdownFiles = [];
+    let allLinks = [];
+    let currentView = 'home';
+    let currentPage = 1;
+    let currentExpandedSubject = null;
+    let currentExpandedCategory = null;
+    const linksPerPage = 50;
 
-        async function initializeApp() {
-            let response;
-            try {
-                response = await fetch('./data.json');
-                if (!response.ok) {
-                    throw new Error(`Could not load data.json. HTTP Status: ${response.status}. Please run 'python build_data.py' first.`);
-                }
-                
-                // Manually get text first for better error logging
-                const rawText = await response.text();
-                markdownFiles = JSON.parse(rawText);
+    async function initializeApp() {
+        const contentArea = document.getElementById('contentArea');
+        contentArea.innerHTML = `<div class="loading">Verifying access... Please wait.</div>`;
 
-                allLinks = markdownFiles.flatMap(file => 
-                    file.content.links.map(link => ({
-                        ...link,
-                        fileName: file.name
-                    }))
-                );
+        // Check if the app is running inside Telegram
+        if (!Telegram.WebApp.initData) {
+            showError("This application can only be accessed from within Telegram.");
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.disabled = true);
+            return;
+        }
 
-                document.querySelectorAll('.nav-btn').forEach(btn => btn.disabled = false);
-                showView('home');
-            } catch (error) {
-                console.error('❌ Fatal Error initializing app:', error);
-                
-                // Diagnostic error message
-                let errorMessage = `Failed to parse data.json. This usually means a special character in your .md files broke the build process.`;
-                if (error.name === 'SyntaxError') {
-                    errorMessage += ` The error is: "${error.message}". Please review your markdown files for unusual characters (like unescaped quotes or invisible control characters) and run the python script again.`;
-                } else {
-                    errorMessage = error.message;
-                }
-                
-                showError(errorMessage);
+        try {
+            // Initialize the Telegram Web App SDK
+            Telegram.WebApp.ready();
+            Telegram.WebApp.expand();
+
+            // Fetch the protected data from our secure serverless function
+            const response = await fetch('/api/get-data', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                // Send the initData for server-side validation
+                body: JSON.stringify({ initData: Telegram.WebApp.initData })
+            });
+
+            if (!response.ok) {
+                // If the server responded with an error (e.g., 403 Forbidden)
+                const errorData = await response.json();
+                throw new Error(errorData.error || `Access Denied. Status: ${response.status}`);
             }
-        }
-
-        function extractSubjectFromFilename(filename) {
-            const parts = filename.split(' - ');
-            if (parts.length >= 2) return parts[0].trim();
-            return filename.replace('.md', '').replace(/[-_]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-        }
-
-        function extractDisplayNameFromFilename(filename) {
-            const parts = filename.split(' - ');
-            const displayName = (parts.length >= 2) ? parts.slice(1).join(' - ') : filename;
-            return displayName.replace('.md', '').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-        }
-
-        function organizeFilesBySubject() {
-            return markdownFiles.reduce((subjects, file) => {
-                const subject = extractSubjectFromFilename(file.name);
-                if (!subjects[subject]) subjects[subject] = [];
-                file.displayName = extractDisplayNameFromFilename(file.name);
-                subjects[subject].push(file);
-                return subjects;
-            }, {});
-        }
-
-        function showView(view) {
-            currentView = view;
-            currentExpandedSubject = null;
-            currentExpandedCategory = null;
             
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-            const button = Array.from(document.querySelectorAll('.nav-btn')).find(btn => btn.textContent.includes(
-                view === 'home' ? 'Home' : view === 'all-links' ? 'All Links' : 'Config'
-            ));
-            if (button) button.classList.add('active');
+            markdownFiles = await response.json();
 
-            switch(view) {
-                case 'home': showHome(); break;
-                case 'all-links': showAllLinks(); break;
-                case 'config': showConfig(); break;
-            }
+            allLinks = markdownFiles.flatMap(file =>
+                file.content.links.map(link => ({
+                    ...link,
+                    fileName: file.name
+                }))
+            );
+
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.disabled = false);
+            showView('home');
+
+        } catch (error) {
+            console.error('❌ Fatal Error initializing app:', error);
+            showError(error.message);
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.disabled = true);
         }
-        
-        function showConfig() {
-             document.getElementById('contentArea').innerHTML = `
-                <h2>⚙️ Build & Setup Instructions</h2>
-                <div class="setup-instructions">
-                    <p>This viewer works with a pre-compiled <code>data.json</code> file for maximum performance.</p>
-                    
-                    <h3>1. File Structure</h3>
-                    <p>Organize your project files as shown below.</p>
-                    <pre>your-project/
-├── index.html (this file)
-├── build_data.py (the build script)
-└── markdown/
-    └── Your_Markdown_Files.md</pre>
-                    
-                    <h3>2. Build Process</h3>
-                    <p>Run the Python build script from your terminal to generate <code>data.json</code>. This script will scan the <code>markdown</code> directory and process all <code>.md</code> files.</p>
-                    <pre>python build_data.py</pre>
+    }
 
-                    <h3>3. Markdown Format</h3>
-                    <p>Use the following format in your <code>.md</code> files.</p>
-                    <pre>
+    // --- All other functions (extractSubjectFromFilename, showView, showHome, etc.) remain exactly the same ---
+    // --- Paste all your other JavaScript functions from the original file here, unchanged. ---
+
+    function extractSubjectFromFilename(filename) {
+        const parts = filename.split(' - ');
+        if (parts.length >= 2) return parts[0].trim();
+        return filename.replace('.md', '').replace(/[-_]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    }
+
+    function extractDisplayNameFromFilename(filename) {
+        const parts = filename.split(' - ');
+        const displayName = (parts.length >= 2) ? parts.slice(1).join(' - ') : filename;
+        return displayName.replace('.md', '').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    }
+
+    function organizeFilesBySubject() {
+        return markdownFiles.reduce((subjects, file) => {
+            const subject = extractSubjectFromFilename(file.name);
+            if (!subjects[subject]) subjects[subject] = [];
+            file.displayName = extractDisplayNameFromFilename(file.name);
+            subjects[subject].push(file);
+            return subjects;
+        }, {});
+    }
+
+    function showView(view) {
+        currentView = view;
+        currentExpandedSubject = null;
+        currentExpandedCategory = null;
+
+        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+        const button = Array.from(document.querySelectorAll('.nav-btn')).find(btn => btn.textContent.includes(
+            view === 'home' ? 'Home' : view === 'all-links' ? 'All Links' : 'Config'
+        ));
+        if (button) button.classList.add('active');
+
+        switch (view) {
+            case 'home':
+                showHome();
+                break;
+            case 'all-links':
+                showAllLinks();
+                break;
+            case 'config':
+                showConfig();
+                break;
+        }
+    }
+
+    function showConfig() {
+        document.getElementById('contentArea').innerHTML = `
+            <h2>⚙️ Build & Setup Instructions</h2>
+            <div class="setup-instructions">
+                <p>This viewer works with a pre-compiled <code>data.json</code> file for maximum performance.</p>
+                
+                <h3>1. File Structure</h3>
+                <p>Organize your project files as shown below.</p>
+                <pre>your-project/\n├── functions/api/get-data.js\n├── index.html (this file)\n├── build_data.py\n├── data.json\n└── markdown/\n    └── Your_Markdown_Files.md</pre>
+                
+                <h3>2. Build Process</h3>
+                <p>Run the Python build script from your terminal to generate <code>data.json</code>. This script will scan the <code>markdown</code> directory and process all <code>.md</code> files.</p>
+                <pre>python build_data.py</pre>
+
+                <h3>3. Markdown Format</h3>
+                <p>Use the following format in your <code>.md</code> files.</p>
+                <pre>
 **Category Name**
 1. [A link without a subcategory](...)
 
@@ -570,192 +591,204 @@
 # To create a file with just links, omit all category/subcategory lines:
 [Link 1](...)
 [Link 2](...)
-                    </pre>
-                </div>
-            `;
+                </pre>
+            </div>
+        `;
+    }
+
+    function showHome() {
+        if (markdownFiles.length === 0) {
+            showError("No data loaded. Make sure 'data.json' exists and is not empty.");
+            return;
+        }
+        const subjects = organizeFilesBySubject();
+        let html = '<h2>📚 Subject Categories</h2>';
+        Object.keys(subjects).sort().forEach(subject => {
+            const files = subjects[subject];
+            const totalLinks = files.reduce((sum, file) => sum + file.linkCount, 0);
+            const subjectId = subject.replace(/[^a-zA-Z0-9]/g, '_');
+            html += `
+                <div class="subject-section">
+                    <div class="subject-header" onclick="toggleSubject('${subjectId}')">
+                        <h3>📖 ${subject} <span class="link-count">(${totalLinks} links)</span></h3>
+                        <span class="toggle-icon" id="toggle-${subjectId}">▼</span>
+                    </div>
+                    <div class="subject-content" id="content-${subjectId}">
+                        ${files.map(file => `
+                            <div class="file-item" onclick="showFileContent('${file.name}')">
+                                <div class="file-info">
+                                    <span class="file-name">📄 ${file.displayName}</span>
+                                    <span class="file-links">${file.linkCount} links</span>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>`;
+        });
+        document.getElementById('contentArea').innerHTML = html;
+    }
+
+    function toggleSubject(subjectId) {
+        if (currentExpandedSubject && currentExpandedSubject !== subjectId) {
+            document.getElementById(`content-${currentExpandedSubject}`).classList.remove('expanded');
+            document.getElementById(`toggle-${currentExpandedSubject}`).classList.remove('expanded');
+        }
+        const content = document.getElementById(`content-${subjectId}`);
+        const toggle = document.getElementById(`toggle-${subjectId}`);
+        content.classList.toggle('expanded');
+        toggle.classList.toggle('expanded');
+        currentExpandedSubject = content.classList.contains('expanded') ? subjectId : null;
+    }
+
+    function showFileContent(fileName) {
+        const file = markdownFiles.find(f => f.name === fileName);
+        if (!file) return;
+
+        currentExpandedCategory = null;
+        let html = `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2>📄 ${file.displayName}</h2>
+                <button class="nav-btn" onclick="showView('home')">← Back to Home</button>
+            </div>
+            <div class="links-container">
+        `;
+
+        const hasCategories = file.content.categories && file.content.categories.length > 0;
+        const hasUncategorizedLinks = file.content.uncategorizedLinks && file.content.uncategorizedLinks.length > 0;
+
+        if (hasCategories) {
+            file.content.categories.forEach((category, index) => {
+                const totalLinksInCategory = (category.links || []).length + (category.subcategories || []).reduce((sum, sub) => sum + sub.links.length, 0);
+                if (totalLinksInCategory > 0) {
+                    const categoryId = `category_${index}`;
+                    html += `
+                        <div class="category-section">
+                            <div class="category-header" onclick="toggleCategory('${categoryId}')">
+                                <h3 class="category-title">${category.title} (${totalLinksInCategory} links)</h3>
+                                <span class="toggle-icon" id="toggle-${categoryId}">▼</span>
+                            </div>
+                            <div class="category-content" id="content-${categoryId}">
+                                ${(category.links || []).map(link => `
+                                    <div class="link-item"><a href="${link.url}" target="_blank" rel="noopener noreferrer">${link.title}</a></div>
+                                `).join('')}
+                                ${(category.subcategories || []).map(subcategory => `
+                                    <h4 class="subcategory-title">${subcategory.title}</h4>
+                                    ${subcategory.links.map(link => `
+                                        <div class="link-item"><a href="${link.url}" target="_blank" rel="noopener noreferrer">${link.title}</a></div>
+                                    `).join('')}
+                                `).join('')}
+                            </div>
+                        </div>`;
+                }
+            });
+        } else if (hasUncategorizedLinks) {
+            html += `<div class="simple-link-list">`;
+            file.content.uncategorizedLinks.forEach(link => {
+                html += `<div class="link-item"><a href="${link.url}" target="_blank" rel="noopener noreferrer">${link.title}</a></div>`;
+            });
+            html += `</div>`;
+        } else {
+            html += '<p>No links found in this file.</p>';
         }
 
-        function showHome() {
-            if (markdownFiles.length === 0) {
-                showError("No data loaded. Make sure 'data.json' exists and is not empty.");
-                return;
-            }
-            const subjects = organizeFilesBySubject();
-            let html = '<h2>📚 Subject Categories</h2>';
-            Object.keys(subjects).sort().forEach(subject => {
-                const files = subjects[subject];
-                const totalLinks = files.reduce((sum, file) => sum + file.linkCount, 0);
-                const subjectId = subject.replace(/[^a-zA-Z0-9]/g, '_');
+        html += '</div>';
+        document.getElementById('contentArea').innerHTML = html;
+    }
+
+    function toggleCategory(categoryId) {
+        if (currentExpandedCategory && currentExpandedCategory !== categoryId) {
+            document.getElementById(`content-${currentExpandedCategory}`).classList.remove('expanded');
+            document.getElementById(`toggle-${currentExpandedCategory}`).classList.remove('expanded');
+        }
+        const content = document.getElementById(`content-${categoryId}`);
+        const toggle = document.getElementById(`toggle-${categoryId}`);
+        content.classList.toggle('expanded');
+        toggle.classList.toggle('expanded');
+        currentExpandedCategory = content.classList.contains('expanded') ? categoryId : null;
+    }
+
+    function showAllLinks(page = 1) {
+        currentPage = page;
+        if (allLinks.length === 0) {
+            showError("No links available. Ensure data.json was generated correctly.");
+            return;
+        }
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        const filteredLinks = searchTerm ? allLinks.filter(link =>
+            link.title.toLowerCase().includes(searchTerm) ||
+            link.category.toLowerCase().includes(searchTerm) ||
+            (link.subcategory && link.subcategory.toLowerCase().includes(searchTerm)) ||
+            link.fileName.toLowerCase().includes(searchTerm)
+        ) : allLinks;
+
+        const totalPages = Math.ceil(filteredLinks.length / linksPerPage);
+        const pageLinks = filteredLinks.slice((page - 1) * linksPerPage, page * linksPerPage);
+        let html = `<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;"><h2>🔗 All Links (${filteredLinks.length} found)</h2></div>`;
+        if (pageLinks.length === 0) {
+            html += '<p>No links match your search criteria.</p>';
+        } else {
+            html += '<div class="links-container">';
+            pageLinks.forEach(link => {
+                const displayName = extractDisplayNameFromFilename(link.fileName);
+                const categoryText = link.subcategory ? `${link.category} / ${link.subcategory}` : link.category;
                 html += `
-                    <div class="subject-section">
-                        <div class="subject-header" onclick="toggleSubject('${subjectId}')">
-                            <h3>📖 ${subject} <span class="link-count">(${totalLinks} links)</span></h3>
-                            <span class="toggle-icon" id="toggle-${subjectId}">▼</span>
-                        </div>
-                        <div class="subject-content" id="content-${subjectId}">
-                            ${files.map(file => `
-                                <div class="file-item" onclick="showFileContent('${file.name}')">
-                                    <div class="file-info">
-                                        <span class="file-name">📄 ${file.displayName}</span>
-                                        <span class="file-links">${file.linkCount} links</span>
-                                    </div>
-                                </div>
-                            `).join('')}
+                    <div class="all-links-item">
+                        <div class="link-content">
+                            <a href="${link.url}" target="_blank" rel="noopener noreferrer">${link.title}</a>
+                            <div class="link-meta">
+                                <span class="file-tag" onclick="showFileContent('${link.fileName}')" title="View file: ${displayName}">📄 ${displayName}</span>
+                                <span class="category-info">🏷️ ${categoryText}</span>
+                            </div>
                         </div>
                     </div>`;
             });
-            document.getElementById('contentArea').innerHTML = html;
-        }
-
-        function toggleSubject(subjectId) {
-            if (currentExpandedSubject && currentExpandedSubject !== subjectId) {
-                document.getElementById(`content-${currentExpandedSubject}`).classList.remove('expanded');
-                document.getElementById(`toggle-${currentExpandedSubject}`).classList.remove('expanded');
-            }
-            const content = document.getElementById(`content-${subjectId}`);
-            const toggle = document.getElementById(`toggle-${subjectId}`);
-            content.classList.toggle('expanded');
-            toggle.classList.toggle('expanded');
-            currentExpandedSubject = content.classList.contains('expanded') ? subjectId : null;
-        }
-
-        function showFileContent(fileName) {
-            const file = markdownFiles.find(f => f.name === fileName);
-            if (!file) return;
-
-            currentExpandedCategory = null;
-            let html = `
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h2>📄 ${file.displayName}</h2>
-                    <button class="nav-btn" onclick="showView('home')">← Back to Home</button>
-                </div>
-                <div class="links-container">
-            `;
-            
-            const hasCategories = file.content.categories && file.content.categories.length > 0;
-            const hasUncategorizedLinks = file.content.uncategorizedLinks && file.content.uncategorizedLinks.length > 0;
-
-            if (hasCategories) {
-                file.content.categories.forEach((category, index) => {
-                    const totalLinksInCategory = (category.links || []).length + (category.subcategories || []).reduce((sum, sub) => sum + sub.links.length, 0);
-                    if (totalLinksInCategory > 0) {
-                        const categoryId = `category_${index}`;
-                        html += `
-                            <div class="category-section">
-                                <div class="category-header" onclick="toggleCategory('${categoryId}')">
-                                    <h3 class="category-title">${category.title} (${totalLinksInCategory} links)</h3>
-                                    <span class="toggle-icon" id="toggle-${categoryId}">▼</span>
-                                </div>
-                                <div class="category-content" id="content-${categoryId}">
-                                    ${(category.links || []).map(link => `
-                                        <div class="link-item"><a href="${link.url}" target="_blank" rel="noopener noreferrer">${link.title}</a></div>
-                                    `).join('')}
-                                    ${(category.subcategories || []).map(subcategory => `
-                                        <h4 class="subcategory-title">${subcategory.title}</h4>
-                                        ${subcategory.links.map(link => `
-                                            <div class="link-item"><a href="${link.url}" target="_blank" rel="noopener noreferrer">${link.title}</a></div>
-                                        `).join('')}
-                                    `).join('')}
-                                </div>
-                            </div>`;
-                    }
-                });
-            } else if (hasUncategorizedLinks) {
-                html += `<div class="simple-link-list">`;
-                file.content.uncategorizedLinks.forEach(link => {
-                    html += `<div class="link-item"><a href="${link.url}" target="_blank" rel="noopener noreferrer">${link.title}</a></div>`;
-                });
-                html += `</div>`;
-            } else {
-                html += '<p>No links found in this file.</p>';
-            }
-
             html += '</div>';
-            document.getElementById('contentArea').innerHTML = html;
+            if (totalPages > 1) html += createPaginationHTML(page, totalPages, filteredLinks.length);
         }
+        document.getElementById('contentArea').innerHTML = html;
+    }
 
-        function toggleCategory(categoryId) {
-            if (currentExpandedCategory && currentExpandedCategory !== categoryId) {
-                document.getElementById(`content-${currentExpandedCategory}`).classList.remove('expanded');
-                document.getElementById(`toggle-${currentExpandedCategory}`).classList.remove('expanded');
-            }
-            const content = document.getElementById(`content-${categoryId}`);
-            const toggle = document.getElementById(`toggle-${categoryId}`);
-            content.classList.toggle('expanded');
-            toggle.classList.toggle('expanded');
-            currentExpandedCategory = content.classList.contains('expanded') ? categoryId : null;
-        }
+    function createPaginationHTML(currentPage, totalPages, totalItems) {
+        let html = '<div class="pagination">';
+        html += `<button onclick="showAllLinks(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>← Previous</button>`;
+        const startPage = Math.max(1, currentPage - 2),
+            endPage = Math.min(totalPages, currentPage + 2);
+        if (startPage > 1) html += `<button onclick="showAllLinks(1)">1</button>${startPage > 2 ? '<span>...</span>' : ''}`;
+        for (let i = startPage; i <= endPage; i++) html += `<button onclick="showAllLinks(${i})" ${i === currentPage ? 'class="active"' : ''}>${i}</button>`;
+        if (endPage < totalPages) html += `${endPage < totalPages - 1 ? '<span>...</span>' : ''}<button onclick="showAllLinks(${totalPages})">${totalPages}</button>`;
+        html += `<button onclick="showAllLinks(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>Next →</button>`;
+        const startItem = (currentPage - 1) * linksPerPage + 1,
+            endItem = Math.min(currentPage * linksPerPage, totalItems);
+        html += `<div class="pagination-info">Showing ${startItem}-${endItem} of ${totalItems}</div>`;
+        html += '</div>';
+        return html;
+    }
 
-        function showAllLinks(page = 1) {
-            currentPage = page;
-            if (allLinks.length === 0) {
-                showError("No links available. Ensure data.json was generated correctly.");
-                return;
-            }
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const filteredLinks = searchTerm ? allLinks.filter(link => 
-                link.title.toLowerCase().includes(searchTerm) ||
-                link.category.toLowerCase().includes(searchTerm) ||
-                (link.subcategory && link.subcategory.toLowerCase().includes(searchTerm)) ||
-                link.fileName.toLowerCase().includes(searchTerm)
-            ) : allLinks;
+    function showError(message) {
+        document.getElementById('contentArea').innerHTML = `<div class="error">❌ ${message}</div>`;
+    }
 
-            const totalPages = Math.ceil(filteredLinks.length / linksPerPage);
-            const pageLinks = filteredLinks.slice((page - 1) * linksPerPage, page * linksPerPage);
-            let html = `<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;"><h2>🔗 All Links (${filteredLinks.length} found)</h2></div>`;
-            if (pageLinks.length === 0) {
-                html += '<p>No links match your search criteria.</p>';
-            } else {
-                html += '<div class="links-container">';
-                pageLinks.forEach(link => {
-                    const displayName = extractDisplayNameFromFilename(link.fileName);
-                    const categoryText = link.subcategory ? `${link.category} / ${link.subcategory}` : link.category;
-                    html += `
-                        <div class="all-links-item">
-                            <div class="link-content">
-                                <a href="${link.url}" target="_blank" rel="noopener noreferrer">${link.title}</a>
-                                <div class="link-meta">
-                                    <span class="file-tag" onclick="showFileContent('${link.fileName}')" title="View file: ${displayName}">📄 ${displayName}</span>
-                                    <span class="category-info">🏷️ ${categoryText}</span>
-                                </div>
-                            </div>
-                        </div>`;
-                });
-                html += '</div>';
-                if (totalPages > 1) html += createPaginationHTML(page, totalPages, filteredLinks.length);
-            }
-            document.getElementById('contentArea').innerHTML = html;
-        }
+    let searchTimeout;
+    document.getElementById('searchInput').addEventListener('input', () => {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            if (currentView !== 'all-links') showView('all-links');
+            else showAllLinks(1);
+        }, 300);
+    });
 
-        function createPaginationHTML(currentPage, totalPages, totalItems) {
-            let html = '<div class="pagination">';
-            html += `<button onclick="showAllLinks(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>← Previous</button>`;
-            const startPage = Math.max(1, currentPage - 2), endPage = Math.min(totalPages, currentPage + 2);
-            if (startPage > 1) html += `<button onclick="showAllLinks(1)">1</button>${startPage > 2 ? '<span>...</span>' : ''}`;
-            for (let i = startPage; i <= endPage; i++) html += `<button onclick="showAllLinks(${i})" ${i === currentPage ? 'class="active"' : ''}>${i}</button>`;
-            if (endPage < totalPages) html += `${endPage < totalPages - 1 ? '<span>...</span>' : ''}<button onclick="showAllLinks(${totalPages})">${totalPages}</button>`;
-            html += `<button onclick="showAllLinks(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>Next →</button>`;
-            const startItem = (currentPage - 1) * linksPerPage + 1, endItem = Math.min(currentPage * linksPerPage, totalItems);
-            html += `<div class="pagination-info">Showing ${startItem}-${endItem} of ${totalItems}</div>`;
-            html += '</div>';
-            return html;
-        }
+    // We now need to include the Telegram script before running our app
+    // const telegramScript = document.createElement('script');
+    // telegramScript.src = "https://telegram.org/js/telegram-web-app.js";
+    // telegramScript.onload = () => {
+    //     document.addEventListener('DOMContentLoaded', initializeApp);
+    // };
+    // document.head.appendChild(telegramScript);
 
-        function showError(message) {
-            document.getElementById('contentArea').innerHTML = `<div class="error">❌ ${message}</div>`;
-        }
+    document.addEventListener('DOMContentLoaded', initializeApp);
 
-        let searchTimeout;
-        document.getElementById('searchInput').addEventListener('input', () => {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                if (currentView !== 'all-links') showView('all-links');
-                else showAllLinks(1);
-            }, 300);
-        });
-        
-        document.addEventListener('DOMContentLoaded', initializeApp);
-    </script>
+</script>
+
 </body>
 </html>
 

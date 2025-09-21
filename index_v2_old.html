@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Index of Archived Videos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #1d2b64 0%, #0d0d1a 100%);
+            min-height: 100vh;
+            color: #e0e0e0;
+            line-height: 1.4;
+        }
+
+        a {
+            color: #8a9fff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+
+        .header {
+            background: rgba(18, 18, 28, 0.85);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .search-container {
+            margin: 15px 0;
+            position: relative;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 12px 40px 12px 15px;
+            border: 1px solid #4a4a6a;
+            border-radius: 20px;
+            font-size: 16px;
+            background: #2c2c3e;
+            color: #e0e0e0;
+            transition: border-color 0.2s ease;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #8a9fff;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #667eea;
+            pointer-events: none;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+
+        .nav-btn {
+            padding: 10px 20px;
+            border: 1px solid #667eea;
+            border-radius: 20px;
+            background: transparent;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .nav-btn:hover {
+            background: #667eea;
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .nav-btn.active {
+            background: #667eea;
+        }
+
+        .content-area {
+            background: rgba(18, 18, 28, 0.85);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            min-height: 300px;
+        }
+
+        .subject-section {
+            margin-bottom: 20px;
+            background: #252538;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #3a3a5a;
+        }
+
+        .subject-header {
+            padding: 15px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #667eea;
+            color: white;
+            transition: background-color 0.2s ease;
+        }
+
+        .subject-header:hover {
+            background: #764ba2;
+        }
+
+        .subject-header h3 {
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+        .link-count {
+            font-weight: normal;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .toggle-icon {
+            font-size: 1.1rem;
+            transition: transform 0.2s ease;
+        }
+
+        .toggle-icon.expanded {
+            transform: rotate(180deg);
+        }
+
+        .subject-content {
+            padding: 0;
+            background: #252538;
+            display: none;
+            transition: all 0.3s ease;
+        }
+
+        .subject-content.expanded {
+            display: block;
+        }
+
+        .file-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid #3a3a5a;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .file-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .file-item:last-child {
+            border-bottom: none;
+        }
+
+        .file-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .file-name {
+            font-weight: 600;
+            color: #8a9fff;
+            font-size: 0.95rem;
+        }
+
+        .file-links {
+            background: rgba(102, 126, 234, 0.2);
+            color: #a6baff;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .links-container {
+            margin-top: 20px;
+        }
+
+        .category-section {
+            margin-bottom: 20px;
+            background: #252538;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #3a3a5a;
+        }
+
+        .category-header {
+            padding: 15px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #667eea;
+            color: white;
+            transition: background-color 0.2s ease;
+        }
+
+        .category-header:hover {
+            background: #764ba2;
+        }
+
+        .category-title {
+            font-size: 1.2rem;
+            margin: 0;
+        }
+
+        .category-content {
+            padding: 15px;
+            background: #252538;
+            display: none;
+            transition: all 0.3s ease;
+        }
+
+        .category-content.expanded {
+            display: block;
+        }
+
+        .subcategory-title {
+            color: #c0c0ff;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-top: 15px;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #4a4a6a;
+        }
+        
+        .category-content > .subcategory-title:first-child,
+        .category-content > .link-item:first-child {
+             margin-top: 0;
+        }
+
+        .link-item {
+            padding: 10px 15px;
+            margin: 0 -15px;
+            border-radius: 5px;
+            transition: all 0.2s ease;
+        }
+        
+        /* Style for simple link lists */
+        .simple-link-list .link-item {
+             margin: 0;
+             padding: 10px;
+             border-bottom: 1px solid #3a3a5a;
+        }
+        .simple-link-list .link-item:last-child {
+             border-bottom: none;
+        }
+
+
+        .link-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .link-item a {
+            color: #8a9fff;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1rem;
+        }
+
+        .link-item a:hover {
+            color: #a6baff;
+        }
+        
+        .all-links-item {
+            background: linear-gradient(135deg, #2a2a3f 0%, #202030 100%);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+            border-left: 4px solid #8a9fff;
+        }
+
+        .all-links-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 3px 12px rgba(138, 159, 255, 0.15);
+        }
+
+        .link-content {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .link-meta {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .file-tag {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        .file-tag:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.2);
+        }
+
+        .category-info {
+            color: #bbb;
+            font-size: 0.8rem;
+            background: rgba(102, 126, 234, 0.15);
+            padding: 3px 10px;
+            border-radius: 12px;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .pagination button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination button.active {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            transform: translateY(-2px);
+        }
+
+        .pagination-info {
+            color: #a0a0b0;
+            font-size: 14px;
+            margin: 0 15px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #8a9fff;
+            font-size: 1.1rem;
+        }
+
+        .error {
+            text-align: center;
+            padding: 50px;
+            color: #e74c3c;
+            background: rgba(231, 76, 60, 0.2);
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .setup-instructions {
+             background: rgba(0, 0, 0, 0.2);
+             border-radius: 15px;
+             padding: 25px;
+             margin-top: 20px;
+             color: white;
+         }
+
+         .setup-instructions h3 {
+             margin-bottom: 15px;
+         }
+
+         .setup-instructions pre {
+             background: rgba(0, 0, 0, 0.4);
+             padding: 10px;
+             border-radius: 5px;
+             margin: 10px 0;
+             overflow-x: auto;
+         }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>📚 Index of Archived Videos</h1>
+            <p>Browse and search through your archived file collections</p>
+            
+            <div class="search-container">
+                <input type="text" class="search-box" id="searchInput" placeholder="Search through all links...">
+                <span class="search-icon">🔍</span>
+            </div>
+            
+            <div class="nav-buttons">
+                <button class="nav-btn active" onclick="showView('home')">🏠 Home</button>
+                <button class="nav-btn" onclick="showView('all-links')">🔗 All Links</button>
+                <button class="nav-btn" onclick="showView('config')">⚙️ Config</button>
+            </div>
+        </header>
+
+        <main class="content-area" id="contentArea">
+            <div class="loading">Ready to browse your files...</div>
+        </main>
+    </div>
+
+    <script>
+        let markdownFiles = [];
+        let allLinks = [];
+        let currentView = 'home';
+        let currentPage = 1;
+        let currentExpandedSubject = null;
+        let currentExpandedCategory = null;
+        const linksPerPage = 50;
+
+        async function initializeApp() {
+            let response;
+            try {
+                response = await fetch('./data.json');
+                if (!response.ok) {
+                    throw new Error(`Could not load data.json. HTTP Status: ${response.status}. Please run 'python build_data.py' first.`);
+                }
+                
+                // Manually get text first for better error logging
+                const rawText = await response.text();
+                markdownFiles = JSON.parse(rawText);
+
+                allLinks = markdownFiles.flatMap(file => 
+                    file.content.links.map(link => ({
+                        ...link,
+                        fileName: file.name
+                    }))
+                );
+
+                document.querySelectorAll('.nav-btn').forEach(btn => btn.disabled = false);
+                showView('home');
+            } catch (error) {
+                console.error('❌ Fatal Error initializing app:', error);
+                
+                // Diagnostic error message
+                let errorMessage = `Failed to parse data.json. This usually means a special character in your .md files broke the build process.`;
+                if (error.name === 'SyntaxError') {
+                    errorMessage += ` The error is: "${error.message}". Please review your markdown files for unusual characters (like unescaped quotes or invisible control characters) and run the python script again.`;
+                } else {
+                    errorMessage = error.message;
+                }
+                
+                showError(errorMessage);
+            }
+        }
+
+        function extractSubjectFromFilename(filename) {
+            const parts = filename.split(' - ');
+            if (parts.length >= 2) return parts[0].trim();
+            return filename.replace('.md', '').replace(/[-_]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        }
+
+        function extractDisplayNameFromFilename(filename) {
+            const parts = filename.split(' - ');
+            const displayName = (parts.length >= 2) ? parts.slice(1).join(' - ') : filename;
+            return displayName.replace('.md', '').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        }
+
+        function organizeFilesBySubject() {
+            return markdownFiles.reduce((subjects, file) => {
+                const subject = extractSubjectFromFilename(file.name);
+                if (!subjects[subject]) subjects[subject] = [];
+                file.displayName = extractDisplayNameFromFilename(file.name);
+                subjects[subject].push(file);
+                return subjects;
+            }, {});
+        }
+
+        function showView(view) {
+            currentView = view;
+            currentExpandedSubject = null;
+            currentExpandedCategory = null;
+            
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            const button = Array.from(document.querySelectorAll('.nav-btn')).find(btn => btn.textContent.includes(
+                view === 'home' ? 'Home' : view === 'all-links' ? 'All Links' : 'Config'
+            ));
+            if (button) button.classList.add('active');
+
+            switch(view) {
+                case 'home': showHome(); break;
+                case 'all-links': showAllLinks(); break;
+                case 'config': showConfig(); break;
+            }
+        }
+        
+        function showConfig() {
+             document.getElementById('contentArea').innerHTML = `
+                <h2>⚙️ Build & Setup Instructions</h2>
+                <div class="setup-instructions">
+                    <p>This viewer works with a pre-compiled <code>data.json</code> file for maximum performance.</p>
+                    
+                    <h3>1. File Structure</h3>
+                    <p>Organize your project files as shown below.</p>
+                    <pre>your-project/
+├── index.html (this file)
+├── build_data.py (the build script)
+└── markdown/
+    └── Your_Markdown_Files.md</pre>
+                    
+                    <h3>2. Build Process</h3>
+                    <p>Run the Python build script from your terminal to generate <code>data.json</code>. This script will scan the <code>markdown</code> directory and process all <code>.md</code> files.</p>
+                    <pre>python build_data.py</pre>
+
+                    <h3>3. Markdown Format</h3>
+                    <p>Use the following format in your <code>.md</code> files.</p>
+                    <pre>
+**Category Name**
+1. [A link without a subcategory](...)
+
+*Subcategory Name*
+1. [A link inside a subcategory](...)
+
+# To create a file with just links, omit all category/subcategory lines:
+[Link 1](...)
+[Link 2](...)
+                    </pre>
+                </div>
+            `;
+        }
+
+        function showHome() {
+            if (markdownFiles.length === 0) {
+                showError("No data loaded. Make sure 'data.json' exists and is not empty.");
+                return;
+            }
+            const subjects = organizeFilesBySubject();
+            let html = '<h2>📚 Subject Categories</h2>';
+            Object.keys(subjects).sort().forEach(subject => {
+                const files = subjects[subject];
+                const totalLinks = files.reduce((sum, file) => sum + file.linkCount, 0);
+                const subjectId = subject.replace(/[^a-zA-Z0-9]/g, '_');
+                html += `
+                    <div class="subject-section">
+                        <div class="subject-header" onclick="toggleSubject('${subjectId}')">
+                            <h3>📖 ${subject} <span class="link-count">(${totalLinks} links)</span></h3>
+                            <span class="toggle-icon" id="toggle-${subjectId}">▼</span>
+                        </div>
+                        <div class="subject-content" id="content-${subjectId}">
+                            ${files.map(file => `
+                                <div class="file-item" onclick="showFileContent('${file.name}')">
+                                    <div class="file-info">
+                                        <span class="file-name">📄 ${file.displayName}</span>
+                                        <span class="file-links">${file.linkCount} links</span>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>`;
+            });
+            document.getElementById('contentArea').innerHTML = html;
+        }
+
+        function toggleSubject(subjectId) {
+            if (currentExpandedSubject && currentExpandedSubject !== subjectId) {
+                document.getElementById(`content-${currentExpandedSubject}`).classList.remove('expanded');
+                document.getElementById(`toggle-${currentExpandedSubject}`).classList.remove('expanded');
+            }
+            const content = document.getElementById(`content-${subjectId}`);
+            const toggle = document.getElementById(`toggle-${subjectId}`);
+            content.classList.toggle('expanded');
+            toggle.classList.toggle('expanded');
+            currentExpandedSubject = content.classList.contains('expanded') ? subjectId : null;
+        }
+
+        function showFileContent(fileName) {
+            const file = markdownFiles.find(f => f.name === fileName);
+            if (!file) return;
+
+            currentExpandedCategory = null;
+            let html = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>📄 ${file.displayName}</h2>
+                    <button class="nav-btn" onclick="showView('home')">← Back to Home</button>
+                </div>
+                <div class="links-container">
+            `;
+            
+            const hasCategories = file.content.categories && file.content.categories.length > 0;
+            const hasUncategorizedLinks = file.content.uncategorizedLinks && file.content.uncategorizedLinks.length > 0;
+
+            if (hasCategories) {
+                file.content.categories.forEach((category, index) => {
+                    const totalLinksInCategory = (category.links || []).length + (category.subcategories || []).reduce((sum, sub) => sum + sub.links.length, 0);
+                    if (totalLinksInCategory > 0) {
+                        const categoryId = `category_${index}`;
+                        html += `
+                            <div class="category-section">
+                                <div class="category-header" onclick="toggleCategory('${categoryId}')">
+                                    <h3 class="category-title">${category.title} (${totalLinksInCategory} links)</h3>
+                                    <span class="toggle-icon" id="toggle-${categoryId}">▼</span>
+                                </div>
+                                <div class="category-content" id="content-${categoryId}">
+                                    ${(category.links || []).map(link => `
+                                        <div class="link-item"><a href="${link.url}" target="_blank" rel="noopener noreferrer">${link.title}</a></div>
+                                    `).join('')}
+                                    ${(category.subcategories || []).map(subcategory => `
+                                        <h4 class="subcategory-title">${subcategory.title}</h4>
+                                        ${subcategory.links.map(link => `
+                                            <div class="link-item"><a href="${link.url}" target="_blank" rel="noopener noreferrer">${link.title}</a></div>
+                                        `).join('')}
+                                    `).join('')}
+                                </div>
+                            </div>`;
+                    }
+                });
+            } else if (hasUncategorizedLinks) {
+                html += `<div class="simple-link-list">`;
+                file.content.uncategorizedLinks.forEach(link => {
+                    html += `<div class="link-item"><a href="${link.url}" target="_blank" rel="noopener noreferrer">${link.title}</a></div>`;
+                });
+                html += `</div>`;
+            } else {
+                html += '<p>No links found in this file.</p>';
+            }
+
+            html += '</div>';
+            document.getElementById('contentArea').innerHTML = html;
+        }
+
+        function toggleCategory(categoryId) {
+            if (currentExpandedCategory && currentExpandedCategory !== categoryId) {
+                document.getElementById(`content-${currentExpandedCategory}`).classList.remove('expanded');
+                document.getElementById(`toggle-${currentExpandedCategory}`).classList.remove('expanded');
+            }
+            const content = document.getElementById(`content-${categoryId}`);
+            const toggle = document.getElementById(`toggle-${categoryId}`);
+            content.classList.toggle('expanded');
+            toggle.classList.toggle('expanded');
+            currentExpandedCategory = content.classList.contains('expanded') ? categoryId : null;
+        }
+
+        function showAllLinks(page = 1) {
+            currentPage = page;
+            if (allLinks.length === 0) {
+                showError("No links available. Ensure data.json was generated correctly.");
+                return;
+            }
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const filteredLinks = searchTerm ? allLinks.filter(link => 
+                link.title.toLowerCase().includes(searchTerm) ||
+                link.category.toLowerCase().includes(searchTerm) ||
+                (link.subcategory && link.subcategory.toLowerCase().includes(searchTerm)) ||
+                link.fileName.toLowerCase().includes(searchTerm)
+            ) : allLinks;
+
+            const totalPages = Math.ceil(filteredLinks.length / linksPerPage);
+            const pageLinks = filteredLinks.slice((page - 1) * linksPerPage, page * linksPerPage);
+            let html = `<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;"><h2>🔗 All Links (${filteredLinks.length} found)</h2></div>`;
+            if (pageLinks.length === 0) {
+                html += '<p>No links match your search criteria.</p>';
+            } else {
+                html += '<div class="links-container">';
+                pageLinks.forEach(link => {
+                    const displayName = extractDisplayNameFromFilename(link.fileName);
+                    const categoryText = link.subcategory ? `${link.category} / ${link.subcategory}` : link.category;
+                    html += `
+                        <div class="all-links-item">
+                            <div class="link-content">
+                                <a href="${link.url}" target="_blank" rel="noopener noreferrer">${link.title}</a>
+                                <div class="link-meta">
+                                    <span class="file-tag" onclick="showFileContent('${link.fileName}')" title="View file: ${displayName}">📄 ${displayName}</span>
+                                    <span class="category-info">🏷️ ${categoryText}</span>
+                                </div>
+                            </div>
+                        </div>`;
+                });
+                html += '</div>';
+                if (totalPages > 1) html += createPaginationHTML(page, totalPages, filteredLinks.length);
+            }
+            document.getElementById('contentArea').innerHTML = html;
+        }
+
+        function createPaginationHTML(currentPage, totalPages, totalItems) {
+            let html = '<div class="pagination">';
+            html += `<button onclick="showAllLinks(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>← Previous</button>`;
+            const startPage = Math.max(1, currentPage - 2), endPage = Math.min(totalPages, currentPage + 2);
+            if (startPage > 1) html += `<button onclick="showAllLinks(1)">1</button>${startPage > 2 ? '<span>...</span>' : ''}`;
+            for (let i = startPage; i <= endPage; i++) html += `<button onclick="showAllLinks(${i})" ${i === currentPage ? 'class="active"' : ''}>${i}</button>`;
+            if (endPage < totalPages) html += `${endPage < totalPages - 1 ? '<span>...</span>' : ''}<button onclick="showAllLinks(${totalPages})">${totalPages}</button>`;
+            html += `<button onclick="showAllLinks(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>Next →</button>`;
+            const startItem = (currentPage - 1) * linksPerPage + 1, endItem = Math.min(currentPage * linksPerPage, totalItems);
+            html += `<div class="pagination-info">Showing ${startItem}-${endItem} of ${totalItems}</div>`;
+            html += '</div>';
+            return html;
+        }
+
+        function showError(message) {
+            document.getElementById('contentArea').innerHTML = `<div class="error">❌ ${message}</div>`;
+        }
+
+        let searchTimeout;
+        document.getElementById('searchInput').addEventListener('input', () => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                if (currentView !== 'all-links') showView('all-links');
+                else showAllLinks(1);
+            }, 300);
+        });
+        
+        document.addEventListener('DOMContentLoaded', initializeApp);
+    </script>
+</body>
+</html>
+
