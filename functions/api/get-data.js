@@ -1,15 +1,12 @@
 // File: functions/api/get-data.js
 
-// We can import the JSON file directly. Cloudflare will bundle it with the function.
-import jsonData from '../../data.json';
-
 /**
- * Validates the initData string from Telegram.
+ * Validates the initData string using the Web Crypto API (supported by Cloudflare).
  * @param {string} initData The initData string from the Telegram Web App.
  * @param {string} botToken The secret bot token.
- * @returns {boolean} True if the data is authentic, false otherwise.
+ * @returns {Promise<boolean>} True if the data is authentic.
  */
-function isInitDataValid(initData, botToken) {
+async function isInitDataValid(initData, botToken) {
     if (!initData || typeof initData !== 'string') {
         return false;
     }
@@ -23,10 +20,23 @@ function isInitDataValid(initData, botToken) {
         .join('\n');
 
     try {
-        // This uses the Web Crypto API, available in Cloudflare Workers/Functions
-        const secretKey = crypto.createHmac('sha256', 'WebAppData').update(botToken).digest();
-        const calculatedHash = crypto.createHmac('sha256', secretKey).update(dataCheckString).digest('hex');
-        return calculatedHash === hash;
+        const secretKey = await crypto.subtle.importKey(
+            'raw',
+            await crypto.subtle.digest('SHA-256', new TextEncoder().encode('WebAppData')),
+            { name: 'HMAC', hash: 'SHA-256' },
+            false,
+            ['sign']
+        );
+        const encoder = new TextEncoder();
+        const signature = await crypto.subtle.sign('HMAC', secretKey, encoder.encode(botToken));
+        
+        const finalKey = await crypto.subtle.importKey('raw', signature, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+        const calculatedHash = await crypto.subtle.sign('HMAC', finalKey, encoder.encode(dataCheckString));
+
+        // Convert the ArrayBuffer to a hex string
+        const hexHash = Array.from(new Uint8Array(calculatedHash)).map(b => b.toString(16).padStart(2, '0')).join('');
+        
+        return hexHash === hash;
     } catch (error) {
         console.error("Crypto validation failed:", error);
         return false;
@@ -35,10 +45,6 @@ function isInitDataValid(initData, botToken) {
 
 /**
  * Calls the Telegram API to check if a user is in a channel.
- * @param {string} userId The user's Telegram ID.
- * @param {string} channelId The ID of the private channel.
- * @param {string} botToken The secret bot token.
- * @returns {Promise<boolean>} True if the user is a member.
  */
 async function isUserMember(userId, channelId, botToken) {
     const url = `https://api.telegram.org/bot${botToken}/getChatMember`;
@@ -60,44 +66,51 @@ async function isUserMember(userId, channelId, botToken) {
 }
 
 /**
- * The main handler for POST requests to this serverless function.
- * Cloudflare automatically routes requests to /api/get-data to this function.
+ * Main handler for POST requests.
  */
 export async function onRequestPost(context) {
     try {
-        const {
-            request,
-            env
-        } = context;
-        const { initData } = await request.json();
-
-        // --- Environment variables must be set in your Cloudflare project settings ---
+        const { request, env } = context;
+        
+        // --- Access environment variables and the data.json binding ---
         const BOT_TOKEN = env.BOT_TOKEN;
         const PRIVATE_CHANNEL_ID = env.PRIVATE_CHANNEL_ID;
+        const jsonDataAsset = env.DATA_JSON; // This is our binding
 
         if (!BOT_TOKEN || !PRIVATE_CHANNEL_ID) {
-            throw new Error("Bot token or Channel ID is not configured on the server.");
+            return new Response(JSON.stringify({ error: 'Server configuration error: Bot Token or Channel ID is missing.' }), { status: 500 });
+        }
+        if (!jsonDataAsset) {
+            return new Response(JSON.stringify({ error: 'Server configuration error: The data file binding is not set up.' }), { status: 500 });
         }
 
-        // 1. Validate the data to ensure it's from Telegram
-        if (!isInitDataValid(initData, BOT_TOKEN)) {
-            return new Response(JSON.stringify({ error: 'Authentication failed: Invalid data.' }), { status: 403, headers: { 'Content-Type': 'application/json' }});
+        const { initData } = await request.json();
+        
+        // 1. Validate the data
+        const isValid = await isInitDataValid(initData, BOT_TOKEN);
+        if (!isValid) {
+            return new Response(JSON.stringify({ error: 'Authentication failed: Invalid data.' }), { status: 403 });
         }
 
-        // 2. Extract user ID and check channel membership
+        // 2. Extract user ID and check membership
         const params = new URLSearchParams(initData);
         const user = JSON.parse(params.get('user'));
-        
         const isMember = await isUserMember(user.id, PRIVATE_CHANNEL_ID, BOT_TOKEN);
 
         // 3. Return data only if the user is a member
         if (isMember) {
-            return new Response(JSON.stringify(jsonData), { status: 200, headers: { 'Content-Type': 'application/json' }});
+            // Read the content from the bound asset
+            const jsonData = await jsonDataAsset.json();
+            return new Response(JSON.stringify(jsonData), {
+                status: 200,
+                headers: { 'Content-Type': 'application/json' }
+            });
         } else {
-            return new Response(JSON.stringify({ error: 'Access Denied: You must be a subscriber of the private channel.' }), { status: 403, headers: { 'Content-Type': 'application/json' }});
+            return new Response(JSON.stringify({ error: 'Access Denied: You must be a subscriber of the private channel.' }), { status: 403 });
         }
 
     } catch (error) {
-        return new Response(JSON.stringify({ error: 'An internal server error occurred.', details: error.message }), { status: 500, headers: { 'Content-Type': 'application/json' }});
+        // Return the actual error message for easier debugging
+        return new Response(JSON.stringify({ error: 'An internal server error occurred.', details: error.message }), { status: 500 });
     }
 }
