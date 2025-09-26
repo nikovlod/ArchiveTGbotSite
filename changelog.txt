@@ -1,0 +1,7 @@
+Change: 22.09.2025
+
+* Changed archivebot to subscriber only service
+* now the index webapp can only be accessed from the telegram miniapp
+* the worker_original_v2.js & index_v3_old.html are the last publicly accessible index archive
+----------------------------------
+

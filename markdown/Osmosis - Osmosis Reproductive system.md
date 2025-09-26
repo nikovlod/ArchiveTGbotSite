@@ -1,168 +1,28 @@
-ArchiveFileBot:
-⚠️ File already exists
-
-File Name: Anatomy and physiology of the male reproductive system.mp4
-
-Numerical File ID: 5248033665360173
-
-⚠️ File already exists
-
-File Name: Benign prostatic hyperplasia.mp4
-
-Numerical File ID: 3545944516652156
-
-⚠️ File already exists
-
-File Name: Breast cancer.mp4
-
-Numerical File ID: 4026561046541937
-
-⚠️ File already exists
-
-File Name: Breastfeeding.mp4
-
-Numerical File ID: 7434854070062739
-
-⚠️ File already exists
-
-File Name: Development of the reproductive system.mp4
-
-Numerical File ID: 3190323743980804
-
-⚠️ File already exists
-
-File Name: Ectopic pregnancy.mp4
-
-Numerical File ID: 8662968331415737
-
-⚠️ File already exists
-
-File Name: Endometrial cancer.mp4
-
-Numerical File ID: 2588421252763209
-
-⚠️ File already exists
-
-File Name: Endometriosis.mp4
-
-Numerical File ID: 5217606499390981
-
-⚠️ File already exists
-
-File Name: Erectile dysfunction.mp4
-
-Numerical File ID: 2036259834943406
-
-⚠️ File already exists
-
-File Name: Estrogen and progesterone.mp4
-
-Numerical File ID: 9728274066781840
-
-⚠️ File already exists
-
-File Name: Germ cell ovarian tumor.mp4
-
-Numerical File ID: 1663305361483866
-
-⚠️ File already exists
-
-File Name: Menopause.mp4
-
-Numerical File ID: 7719998203764852
-
-⚠️ File already exists
-
-File Name: Menstrual cycle.mp4
-
-Numerical File ID: 2717810789976285
-
-⚠️ File already exists
-
-File Name: Miscarriage.mp4
-
-Numerical File ID: 2252126595286150
-
-⚠️ File already exists
-
-File Name: Oxytocin and prolactin.mp4
-
-Numerical File ID: 7666531460787560
-
-⚠️ File already exists
-
-File Name: Placenta previa.mp4
-
-Numerical File ID: 8711663906370857
-
-⚠️ File already exists
-
-File Name: Placental abruption.mp4
-
-Numerical File ID: 1870133006898029
-
-⚠️ File already exists
-
-File Name: Postpartum hemorrhage.mp4
-
-Numerical File ID: 2290047956741144
-
-⚠️ File already exists
-
-File Name: Pre-eclampsia.mp4
-
-Numerical File ID: 3550193743191619
-
-⚠️ File already exists
-
-File Name: Pregnancy.mp4
-
-Numerical File ID: 0468011855858079
-
-⚠️ File already exists
-
-File Name: Prostate cancer.mp4
-
-Numerical File ID: 1620438236433662
-
-⚠️ File already exists
-
-File Name: Puberty and Tanner staging.mp4
-
-Numerical File ID: 4899465492605937
-
-⚠️ File already exists
-
-File Name: Reproductive Physiology.mp4
-
-Numerical File ID: 2438587950681631
-
-⚠️ File already exists
-
-File Name: Sex cord-gonadal stromal tumor.mp4
-
-Numerical File ID: 4775895505534653
-
-⚠️ File already exists
-
-File Name: Stages of labor.mp4
-
-Numerical File ID: 4374635368398951
-
-⚠️ File already exists
-
-File Name: Surface epithelial-stromal tumor.mp4
-
-Numerical File ID: 3353249958703867
-
-⚠️ File already exists
-
-File Name: Testosterone.mp4
-
-Numerical File ID: 7382112703024502
-
-⚠️ File already exists
-
-File Name: Uterine fibroid.mp4
-
-Numerical File ID: 4338683530268480
+[Anatomy and physiology of the male reproductive system](https://t.me/ArchiveAnyFileBot?start=5248033665360173)
+[Benign prostatic hyperplasia](https://t.me/ArchiveAnyFileBot?start=3545944516652156)
+[Breast cancer](https://t.me/ArchiveAnyFileBot?start=4026561046541937)
+[Breastfeeding](https://t.me/ArchiveAnyFileBot?start=7434854070062739)
+[Development of the reproductive system](https://t.me/ArchiveAnyFileBot?start=3190323743980804)
+[Ectopic pregnancy](https://t.me/ArchiveAnyFileBot?start=8662968331415737)
+[Endometrial cancer](https://t.me/ArchiveAnyFileBot?start=2588421252763209)
+[Endometriosis](https://t.me/ArchiveAnyFileBot?start=5217606499390981)
+[Erectile dysfunction](https://t.me/ArchiveAnyFileBot?start=2036259834943406)
+[Estrogen and progesterone](https://t.me/ArchiveAnyFileBot?start=9728274066781840)
+[Germ cell ovarian tumor](https://t.me/ArchiveAnyFileBot?start=1663305361483866)
+[Menopause](https://t.me/ArchiveAnyFileBot?start=7719998203764852)
+[Menstrual cycle](https://t.me/ArchiveAnyFileBot?start=2717810789976285)
+[Miscarriage](https://t.me/ArchiveAnyFileBot?start=2252126595286150)
+[Oxytocin and prolactin](https://t.me/ArchiveAnyFileBot?start=7666531460787560)
+[Placenta previa](https://t.me/ArchiveAnyFileBot?start=8711663906370857)
+[Placental abruption](https://t.me/ArchiveAnyFileBot?start=1870133006898029)
+[Postpartum hemorrhage](https://t.me/ArchiveAnyFileBot?start=2290047956741144)
+[Pre-eclampsia](https://t.me/ArchiveAnyFileBot?start=3550193743191619)
+[Pregnancy](https://t.me/ArchiveAnyFileBot?start=0468011855858079)
+[Prostate cancer](https://t.me/ArchiveAnyFileBot?start=1620438236433662)
+[Puberty and Tanner staging](https://t.me/ArchiveAnyFileBot?start=4899465492605937)
+[Reproductive Physiology](https://t.me/ArchiveAnyFileBot?start=2438587950681631)
+[Sex cord-gonadal stromal tumor](https://t.me/ArchiveAnyFileBot?start=4775895505534653)
+[Stages of labor](https://t.me/ArchiveAnyFileBot?start=4374635368398951)
+[Surface epithelial-stromal tumor](https://t.me/ArchiveAnyFileBot?start=3353249958703867)
+[Testosterone](https://t.me/ArchiveAnyFileBot?start=7382112703024502)
+[Uterine fibroid](https://t.me/ArchiveAnyFileBot?start=4338683530268480)
