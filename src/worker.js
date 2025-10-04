@@ -621,7 +621,7 @@ async function handleFileRequest(update, bot, csvManager, env) {
       return;
     }
 
-    const deleteDelayMs = parseInt(env.DELETE_DELAY_MS, 10) || 5400000;
+    const deleteDelayMs = parseInt(env.DELETE_DELAY_MS, 10) || 10800000;
     const deleteDelayMinutes = Math.round(deleteDelayMs / 60000);
     const caption = `*Found file! 😊*\n\n*Numerical File ID:* \`${numericalFileId}\`\n*File Name:* \`${fileData.file_name}\`\n\n*This file will be deleted in ~${deleteDelayMinutes} minutes.*`;
 
