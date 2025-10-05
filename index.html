@@ -208,7 +208,7 @@
             font-size: 0.8rem;
             font-weight: 500;
         }
-
+        
         .links-container {
             margin-top: 20px;
         }
@@ -274,7 +274,6 @@
             transition: all 0.2s ease;
         }
         
-        /* Style for simple link lists */
         .simple-link-list .link-item {
              margin: 0;
              padding: 10px;
@@ -296,10 +295,6 @@
             font-size: 1rem;
         }
 
-        .link-item a:hover {
-            color: #a6baff;
-        }
-        
         .all-links-item {
             background: linear-gradient(135deg, #2a2a3f 0%, #202030 100%);
             border-radius: 10px;
@@ -394,17 +389,6 @@
             opacity: 0.5;
             cursor: not-allowed;
         }
-
-        .pagination button.active {
-            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-            transform: translateY(-2px);
-        }
-
-        .pagination-info {
-            color: #a0a0b0;
-            font-size: 14px;
-            margin: 0 15px;
-        }
         
         .loading {
             text-align: center;
@@ -422,25 +406,34 @@
             margin: 20px 0;
         }
         
-        .setup-instructions {
-             background: rgba(0, 0, 0, 0.2);
-             border-radius: 15px;
-             padding: 25px;
-             margin-top: 20px;
+        .youtube-search-trigger {
+            text-align: center;
+            margin: 25px 0 15px 0;
+        }
+
+        .youtube-search-trigger button {
+             padding: 12px 25px;
+             border: none;
+             border-radius: 25px;
+             background: linear-gradient(135deg, #c81e1e 0%, #990000 100%);
              color: white;
-         }
-
-         .setup-instructions h3 {
-             margin-bottom: 15px;
-         }
-
-         .setup-instructions pre {
-             background: rgba(0, 0, 0, 0.4);
-             padding: 10px;
-             border-radius: 5px;
-             margin: 10px 0;
-             overflow-x: auto;
-         }
+             font-size: 1rem;
+             font-weight: 600;
+             cursor: pointer;
+             transition: all 0.3s ease;
+        }
+        
+        .youtube-search-trigger button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 77, 77, 0.3);
+        }
+        
+        #youtubeResultsContainer h3 {
+             color: #ff8a8a;
+             margin: 20px 0 15px 0;
+             border-bottom: 2px solid #ff8a8a;
+             padding-bottom: 8px;
+        }
     </style>
 </head>
 <body>
@@ -450,7 +443,7 @@
             <p>Browse and search through your archived file collections</p>
             
             <div class="search-container">
-                <input type="text" class="search-box" id="searchInput" placeholder="Search files and YouTube channels...">
+                <input type="text" class="search-box" id="searchInput" placeholder="Search through your files...">
                 <span class="search-icon">🔍</span>
             </div>
             
@@ -482,7 +475,7 @@
 
         if (!Telegram.WebApp.initData) {
             showError("This application can only be accessed from within Telegram.");
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.disabled = true);
+            document.querySelectorAll('.nav-btn, .search-box').forEach(el => el.disabled = true);
             return;
         }
 
@@ -506,8 +499,7 @@
             allLinks = markdownFiles.flatMap(file =>
                 file.content.links.map(link => ({
                     ...link,
-                    fileName: file.name,
-                    source: 'local' // Identify local files
+                    fileName: file.name
                 }))
             );
 
@@ -517,7 +509,7 @@
         } catch (error) {
             console.error('❌ Fatal Error initializing app:', error);
             showError(error.message);
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.disabled = true);
+            document.querySelectorAll('.nav-btn, .search-box').forEach(el => el.disabled = true);
         }
     }
     
@@ -559,7 +551,7 @@
                 showHome();
                 break;
             case 'all-links':
-                showAllLinks();
+                showAllLinks(1);
                 break;
             case 'config':
                 showConfig();
@@ -571,21 +563,13 @@
         document.getElementById('contentArea').innerHTML = `
             <h2>⚙️ Build & Setup Instructions</h2>
             <div class="setup-instructions">
-                <p>This viewer works with a pre-compiled <code>data.json</code> file and serverless functions for security and external searches.</p>
-                
+                <p>This viewer works with a pre-compiled <code>data.json</code> file and serverless functions.</p>
                 <h3>1. Environment Variables</h3>
                 <p>In your Cloudflare Pages project settings, add the following environment variables:</p>
-                <pre>BOT_TOKEN              # Your Telegram Bot Token\nPRIVATE_CHANNEL_ID     # Your private channel's ID (e.g., -100...)\nYOUTUBE_API_KEY        # Your Google Cloud API Key for YouTube Search\nYOUTUBE_CHANNEL_IDS    # Comma-separated list of YouTube Channel IDs to search</pre>
-
-                <h3>2. File Structure</h3>
-                <p>Organize your project files as shown below.</p>
-                <pre>your-project/\n├── functions/api/\n│   ├── get-data.js\n│   └── youtube-search.js\n├── index.html\n├── build_data.py\n├── data.json\n└── markdown/\n    └── Your_Markdown_Files.md</pre>
-                
-                <h3>3. Build Process</h3>
-                <p>Run the Python build script from your terminal to generate <code>data.json</code> from your markdown files.</p>
-                <pre>python build_data.py</pre>
-            </div>
-        `;
+                <pre>BOT_TOKEN              # Your Telegram Bot Token\nPRIVATE_CHANNEL_ID     # Your private channel's ID\nYOUTUBE_API_KEY        # Your Google Cloud API Key\nYOUTUBE_CHANNEL_IDS    # Comma-separated list of YouTube Channel IDs</pre>
+                <h3>2. YouTube Search</h3>
+                <p>To protect your API quota, live search works for local files only. A button will appear to search YouTube on-demand.</p>
+            </div>`;
     }
 
     function showHome() {
@@ -660,14 +644,10 @@
                                 <span class="toggle-icon" id="toggle-${categoryId}">▼</span>
                             </div>
                             <div class="category-content" id="content-${categoryId}">
-                                ${(category.links || []).map(link => `
-                                    <div class="link-item"><a href="${link.url}" target="_blank" rel="noopener noreferrer">${link.title}</a></div>
-                                `).join('')}
+                                ${(category.links || []).map(link => `<div class="link-item"><a href="${link.url}" target="_blank" rel="noopener noreferrer">${link.title}</a></div>`).join('')}
                                 ${(category.subcategories || []).map(subcategory => `
                                     <h4 class="subcategory-title">${subcategory.title}</h4>
-                                    ${subcategory.links.map(link => `
-                                        <div class="link-item"><a href="${link.url}" target="_blank" rel="noopener noreferrer">${link.title}</a></div>
-                                    `).join('')}
+                                    ${subcategory.links.map(link => `<div class="link-item"><a href="${link.url}" target="_blank" rel="noopener noreferrer">${link.title}</a></div>`).join('')}
                                 `).join('')}
                             </div>
                         </div>`;
@@ -686,7 +666,7 @@
         html += '</div>';
         document.getElementById('contentArea').innerHTML = html;
     }
-
+    
     function toggleCategory(categoryId) {
         if (currentExpandedCategory && currentExpandedCategory !== categoryId) {
             document.getElementById(`content-${currentExpandedCategory}`).classList.remove('expanded');
@@ -698,9 +678,76 @@
         toggle.classList.toggle('expanded');
         currentExpandedCategory = content.classList.contains('expanded') ? categoryId : null;
     }
+    
+    function showAllLinks(page = 1) {
+        currentPage = page;
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        
+        const filteredLinks = searchTerm ? allLinks.filter(link =>
+            link.title.toLowerCase().includes(searchTerm) ||
+            link.category.toLowerCase().includes(searchTerm) ||
+            (link.subcategory && link.subcategory.toLowerCase().includes(searchTerm)) ||
+            link.fileName.toLowerCase().includes(searchTerm)
+        ) : allLinks;
 
-    async function fetchYouTubeResults(searchTerm) {
-        if (!searchTerm) return [];
+        const totalPages = Math.ceil(filteredLinks.length / linksPerPage);
+        const pageLinks = filteredLinks.slice((page - 1) * linksPerPage, page * linksPerPage);
+        
+        let html = `<div id="localResultsContainer">`;
+        html += `<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;"><h2>🔗 Local Files (${filteredLinks.length} found)</h2></div>`;
+        
+        if (pageLinks.length === 0 && searchTerm) {
+            html += '<p>No local files match your search criteria.</p>';
+        } else if (pageLinks.length === 0 && !searchTerm) {
+            html += '<p>Showing all local files.</p>';
+        }
+
+        if (pageLinks.length > 0) {
+            html += '<div class="links-container">';
+            pageLinks.forEach(link => {
+                const displayName = extractDisplayNameFromFilename(link.fileName);
+                const categoryText = link.subcategory ? `${link.category} / ${link.subcategory}` : link.category;
+                html += `
+                    <div class="all-links-item">
+                        <div class="link-content">
+                            <a href="${link.url}" target="_blank" rel="noopener noreferrer">${link.title}</a>
+                            <div class="link-meta">
+                                <span class="file-tag" onclick="showFileContent('${link.fileName}')" title="View file: ${displayName}">📄 ${displayName}</span>
+                                <span class="category-info">🏷️ ${categoryText}</span>
+                            </div>
+                        </div>
+                    </div>`;
+            });
+            html += '</div>';
+            if (totalPages > 1) html += createPaginationHTML(page, totalPages, filteredLinks.length);
+        }
+        html += `</div>`;
+
+        html += `<div id="youtubeSearchTriggerContainer"></div>`;
+        html += `<div id="youtubeResultsContainer"></div>`;
+        
+        document.getElementById('contentArea').innerHTML = html;
+
+        if (searchTerm) {
+            const triggerContainer = document.getElementById('youtubeSearchTriggerContainer');
+            triggerContainer.innerHTML = `
+                <div class="youtube-search-trigger">
+                    <button onclick="performYouTubeSearch()">▶️ Search YouTube for "${searchTerm}"</button>
+                </div>
+            `;
+        }
+    }
+
+    async function performYouTubeSearch() {
+        const searchTerm = document.getElementById('searchInput').value;
+        const triggerContainer = document.getElementById('youtubeSearchTriggerContainer');
+        const resultsContainer = document.getElementById('youtubeResultsContainer');
+
+        if (!searchTerm) return;
+
+        triggerContainer.innerHTML = '';
+        resultsContainer.innerHTML = `<div class="loading">Searching YouTube...</div>`;
+
         try {
             const response = await fetch('/api/youtube-search', {
                 method: 'POST',
@@ -710,56 +757,23 @@
                     initData: Telegram.WebApp.initData
                 }),
             });
+
             if (!response.ok) {
-                 console.error('YouTube search failed:', await response.text());
-                 return [];
+                 const errorData = await response.json().catch(() => null);
+                 if (errorData && errorData.error && errorData.error.includes('quotaExceeded')) {
+                     throw new Error('You have exceeded the daily YouTube API quota.');
+                 }
+                 throw new Error(`API Error: The server responded with status ${response.status}.`);
             }
-            const results = await response.json();
-            return results.map(item => ({
-                title: item.title,
-                url: item.url,
-                channel: item.channel,
-                source: 'youtube'
-            }));
-        } catch (error) {
-            console.error('Error fetching YouTube results:', error);
-            return []; // Return empty on failure
-        }
-    }
-    
-    async function showAllLinks(page = 1) {
-        currentPage = page;
-        const contentArea = document.getElementById('contentArea');
-        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
 
-        // Show loading indicator
-        contentArea.innerHTML = `<div class="loading">Searching local archive and YouTube...</div>`;
-
-        // 1. Filter local links
-        const filteredLinks = searchTerm ? allLinks.filter(link =>
-            link.title.toLowerCase().includes(searchTerm) ||
-            link.category.toLowerCase().includes(searchTerm) ||
-            (link.subcategory && link.subcategory.toLowerCase().includes(searchTerm)) ||
-            link.fileName.toLowerCase().includes(searchTerm)
-        ) : allLinks;
-
-        // 2. Fetch YouTube links
-        const youtubeLinks = await fetchYouTubeResults(searchTerm);
-        
-        // 3. Combine results, with local files appearing FIRST.
-        const combinedResults = [...filteredLinks, ...youtubeLinks];
-
-        const totalPages = Math.ceil(combinedResults.length / linksPerPage);
-        const pageLinks = combinedResults.slice((page - 1) * linksPerPage, page * linksPerPage);
-        
-        let html = `<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;"><h2>🔗 All Links (${combinedResults.length} found)</h2></div>`;
-        
-        if (pageLinks.length === 0) {
-            html += '<p>No links match your search criteria.</p>';
-        } else {
-            html += '<div class="links-container">';
-            pageLinks.forEach(link => {
-                if (link.source === 'youtube') {
+            const youtubeResults = await response.json();
+            
+            let html = `<h3>YouTube Results (${youtubeResults.length} found)</h3>`;
+            if (youtubeResults.length === 0) {
+                html += '<p>No videos found on YouTube for this term.</p>';
+            } else {
+                html += '<div class="links-container">';
+                youtubeResults.forEach(link => {
                     html += `
                         <div class="all-links-item">
                             <div class="link-content">
@@ -770,38 +784,26 @@
                                 </div>
                             </div>
                         </div>`;
-                } else {
-                    const displayName = extractDisplayNameFromFilename(link.fileName);
-                    const categoryText = link.subcategory ? `${link.category} / ${link.subcategory}` : link.category;
-                    html += `
-                        <div class="all-links-item">
-                            <div class="link-content">
-                                <a href="${link.url}" target="_blank" rel="noopener noreferrer">${link.title}</a>
-                                <div class="link-meta">
-                                    <span class="file-tag" onclick="showFileContent('${link.fileName}')" title="View file: ${displayName}">📄 ${displayName}</span>
-                                    <span class="category-info">🏷️ ${categoryText}</span>
-                                </div>
-                            </div>
-                        </div>`;
-                }
-            });
-            html += '</div>';
-            if (totalPages > 1) html += createPaginationHTML(page, totalPages, combinedResults.length);
+                });
+                html += '</div>';
+            }
+            resultsContainer.innerHTML = html;
+
+        } catch (error) {
+            console.error('Error fetching YouTube results:', error);
+            resultsContainer.innerHTML = `<div class="error">❌ ${error.message}</div>`;
         }
-        contentArea.innerHTML = html;
     }
 
     function createPaginationHTML(currentPage, totalPages, totalItems) {
         let html = '<div class="pagination">';
         html += `<button onclick="showAllLinks(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>← Previous</button>`;
-        const startPage = Math.max(1, currentPage - 2),
-            endPage = Math.min(totalPages, currentPage + 2);
+        const startPage = Math.max(1, currentPage - 2), endPage = Math.min(totalPages, currentPage + 2);
         if (startPage > 1) html += `<button onclick="showAllLinks(1)">1</button>${startPage > 2 ? '<span>...</span>' : ''}`;
         for (let i = startPage; i <= endPage; i++) html += `<button onclick="showAllLinks(${i})" ${i === currentPage ? 'class="active"' : ''}>${i}</button>`;
         if (endPage < totalPages) html += `${endPage < totalPages - 1 ? '<span>...</span>' : ''}<button onclick="showAllLinks(${totalPages})">${totalPages}</button>`;
         html += `<button onclick="showAllLinks(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>Next →</button>`;
-        const startItem = (currentPage - 1) * linksPerPage + 1,
-            endItem = Math.min(currentPage * linksPerPage, totalItems);
+        const startItem = (currentPage - 1) * linksPerPage + 1, endItem = Math.min(currentPage * linksPerPage, totalItems);
         html += `<div class="pagination-info">Showing ${startItem}-${endItem} of ${totalItems}</div>`;
         html += '</div>';
         return html;
@@ -815,14 +817,16 @@
     document.getElementById('searchInput').addEventListener('input', () => {
         clearTimeout(searchTimeout);
         searchTimeout = setTimeout(() => {
-            if (currentView !== 'all-links') showView('all-links');
-            else showAllLinks(1);
+            if (currentView !== 'all-links') {
+                showView('all-links');
+            } else {
+                showAllLinks(1);
+            }
         }, 300);
     });
 
     document.addEventListener('DOMContentLoaded', initializeApp);
 
 </script>
-
 </body>
 </html>
