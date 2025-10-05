@@ -746,8 +746,8 @@
         // 2. Fetch YouTube links
         const youtubeLinks = await fetchYouTubeResults(searchTerm);
         
-        // 3. Combine and sort (optional, here we put YouTube results first)
-        const combinedResults = [...youtubeLinks, ...filteredLinks];
+        // 3. Combine results, with local files appearing FIRST.
+        const combinedResults = [...filteredLinks, ...youtubeLinks];
 
         const totalPages = Math.ceil(combinedResults.length / linksPerPage);
         const pageLinks = combinedResults.slice((page - 1) * linksPerPage, page * linksPerPage);
