@@ -326,17 +326,6 @@
             gap: 15px;
             flex-wrap: wrap;
         }
-        
-        .youtube-tag {
-            background: linear-gradient(135deg, #ff4d4d 0%, #b30000 100%);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 15px;
-            font-size: 0.75rem;
-            font-weight: 500;
-            display: inline-block;
-            margin-right: 8px;
-        }
 
         .file-tag {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -450,7 +439,7 @@
             <p>Browse and search through your archived file collections</p>
             
             <div class="search-container">
-                <input type="text" class="search-box" id="searchInput" placeholder="Search files and YouTube channels...">
+                <input type="text" class="search-box" id="searchInput" placeholder="Search through all links...">
                 <span class="search-icon">🔍</span>
             </div>
             
@@ -480,6 +469,7 @@
         const contentArea = document.getElementById('contentArea');
         contentArea.innerHTML = `<div class="loading">Verifying access... Please wait.</div>`;
 
+        // Check if the app is running inside Telegram
         if (!Telegram.WebApp.initData) {
             showError("This application can only be accessed from within Telegram.");
             document.querySelectorAll('.nav-btn').forEach(btn => btn.disabled = true);
@@ -487,16 +477,22 @@
         }
 
         try {
+            // Initialize the Telegram Web App SDK
             Telegram.WebApp.ready();
             Telegram.WebApp.expand();
 
+            // Fetch the protected data from our secure serverless function
             const response = await fetch('/api/get-data', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                // Send the initData for server-side validation
                 body: JSON.stringify({ initData: Telegram.WebApp.initData })
             });
 
             if (!response.ok) {
+                // If the server responded with an error (e.g., 403 Forbidden)
                 const errorData = await response.json();
                 throw new Error(errorData.error || `Access Denied. Status: ${response.status}`);
             }
@@ -506,8 +502,7 @@
             allLinks = markdownFiles.flatMap(file =>
                 file.content.links.map(link => ({
                     ...link,
-                    fileName: file.name,
-                    source: 'local' // Identify local files
+                    fileName: file.name
                 }))
             );
 
@@ -520,7 +515,10 @@
             document.querySelectorAll('.nav-btn').forEach(btn => btn.disabled = true);
         }
     }
-    
+
+    // --- All other functions (extractSubjectFromFilename, showView, showHome, etc.) remain exactly the same ---
+    // --- Paste all your other JavaScript functions from the original file here, unchanged. ---
+
     function extractSubjectFromFilename(filename) {
         const parts = filename.split(' - ');
         if (parts.length >= 2) return parts[0].trim();
@@ -571,19 +569,29 @@
         document.getElementById('contentArea').innerHTML = `
             <h2>⚙️ Build & Setup Instructions</h2>
             <div class="setup-instructions">
-                <p>This viewer works with a pre-compiled <code>data.json</code> file and serverless functions for security and external searches.</p>
+                <p>This viewer works with a pre-compiled <code>data.json</code> file for maximum performance.</p>
                 
-                <h3>1. Environment Variables</h3>
-                <p>In your Cloudflare Pages project settings, add the following environment variables:</p>
-                <pre>BOT_TOKEN              # Your Telegram Bot Token\nPRIVATE_CHANNEL_ID     # Your private channel's ID (e.g., -100...)\nYOUTUBE_API_KEY        # Your Google Cloud API Key for YouTube Search\nYOUTUBE_CHANNEL_IDS    # Comma-separated list of YouTube Channel IDs to search</pre>
-
-                <h3>2. File Structure</h3>
+                <h3>1. File Structure</h3>
                 <p>Organize your project files as shown below.</p>
-                <pre>your-project/\n├── functions/api/\n│   ├── get-data.js\n│   └── youtube-search.js\n├── index.html\n├── build_data.py\n├── data.json\n└── markdown/\n    └── Your_Markdown_Files.md</pre>
+                <pre>your-project/\n├── functions/api/get-data.js\n├── index.html (this file)\n├── build_data.py\n├── data.json\n└── markdown/\n    └── Your_Markdown_Files.md</pre>
                 
-                <h3>3. Build Process</h3>
-                <p>Run the Python build script from your terminal to generate <code>data.json</code> from your markdown files.</p>
+                <h3>2. Build Process</h3>
+                <p>Run the Python build script from your terminal to generate <code>data.json</code>. This script will scan the <code>markdown</code> directory and process all <code>.md</code> files.</p>
                 <pre>python build_data.py</pre>
+
+                <h3>3. Markdown Format</h3>
+                <p>Use the following format in your <code>.md</code> files.</p>
+                <pre>
+**Category Name**
+1. [A link without a subcategory](...)
+
+*Subcategory Name*
+1. [A link inside a subcategory](...)
+
+# To create a file with just links, omit all category/subcategory lines:
+[Link 1](...)
+[Link 2](...)
+                </pre>
             </div>
         `;
     }
@@ -699,43 +707,13 @@
         currentExpandedCategory = content.classList.contains('expanded') ? categoryId : null;
     }
 
-    async function fetchYouTubeResults(searchTerm) {
-        if (!searchTerm) return [];
-        try {
-            const response = await fetch('/api/youtube-search', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    query: searchTerm,
-                    initData: Telegram.WebApp.initData
-                }),
-            });
-            if (!response.ok) {
-                 console.error('YouTube search failed:', await response.text());
-                 return [];
-            }
-            const results = await response.json();
-            return results.map(item => ({
-                title: item.title,
-                url: item.url,
-                channel: item.channel,
-                source: 'youtube'
-            }));
-        } catch (error) {
-            console.error('Error fetching YouTube results:', error);
-            return []; // Return empty on failure
-        }
-    }
-    
-    async function showAllLinks(page = 1) {
+    function showAllLinks(page = 1) {
         currentPage = page;
-        const contentArea = document.getElementById('contentArea');
+        if (allLinks.length === 0) {
+            showError("No links available. Ensure data.json was generated correctly.");
+            return;
+        }
         const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-
-        // Show loading indicator
-        contentArea.innerHTML = `<div class="loading">Searching local archive and YouTube...</div>`;
-
-        // 1. Filter local links
         const filteredLinks = searchTerm ? allLinks.filter(link =>
             link.title.toLowerCase().includes(searchTerm) ||
             link.category.toLowerCase().includes(searchTerm) ||
@@ -743,52 +721,31 @@
             link.fileName.toLowerCase().includes(searchTerm)
         ) : allLinks;
 
-        // 2. Fetch YouTube links
-        const youtubeLinks = await fetchYouTubeResults(searchTerm);
-        
-        // 3. Combine and sort (optional, here we put YouTube results first)
-        const combinedResults = [...youtubeLinks, ...filteredLinks];
-
-        const totalPages = Math.ceil(combinedResults.length / linksPerPage);
-        const pageLinks = combinedResults.slice((page - 1) * linksPerPage, page * linksPerPage);
-        
-        let html = `<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;"><h2>🔗 All Links (${combinedResults.length} found)</h2></div>`;
-        
+        const totalPages = Math.ceil(filteredLinks.length / linksPerPage);
+        const pageLinks = filteredLinks.slice((page - 1) * linksPerPage, page * linksPerPage);
+        let html = `<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;"><h2>🔗 All Links (${filteredLinks.length} found)</h2></div>`;
         if (pageLinks.length === 0) {
             html += '<p>No links match your search criteria.</p>';
         } else {
             html += '<div class="links-container">';
             pageLinks.forEach(link => {
-                if (link.source === 'youtube') {
-                    html += `
-                        <div class="all-links-item">
-                            <div class="link-content">
-                                <a href="${link.url}" target="_blank" rel="noopener noreferrer">${link.title}</a>
-                                <div class="link-meta">
-                                    <span class="youtube-tag">▶️ YouTube</span>
-                                    <span class="category-info">📺 ${link.channel}</span>
-                                </div>
+                const displayName = extractDisplayNameFromFilename(link.fileName);
+                const categoryText = link.subcategory ? `${link.category} / ${link.subcategory}` : link.category;
+                html += `
+                    <div class="all-links-item">
+                        <div class="link-content">
+                            <a href="${link.url}" target="_blank" rel="noopener noreferrer">${link.title}</a>
+                            <div class="link-meta">
+                                <span class="file-tag" onclick="showFileContent('${link.fileName}')" title="View file: ${displayName}">📄 ${displayName}</span>
+                                <span class="category-info">🏷️ ${categoryText}</span>
                             </div>
-                        </div>`;
-                } else {
-                    const displayName = extractDisplayNameFromFilename(link.fileName);
-                    const categoryText = link.subcategory ? `${link.category} / ${link.subcategory}` : link.category;
-                    html += `
-                        <div class="all-links-item">
-                            <div class="link-content">
-                                <a href="${link.url}" target="_blank" rel="noopener noreferrer">${link.title}</a>
-                                <div class="link-meta">
-                                    <span class="file-tag" onclick="showFileContent('${link.fileName}')" title="View file: ${displayName}">📄 ${displayName}</span>
-                                    <span class="category-info">🏷️ ${categoryText}</span>
-                                </div>
-                            </div>
-                        </div>`;
-                }
+                        </div>
+                    </div>`;
             });
             html += '</div>';
-            if (totalPages > 1) html += createPaginationHTML(page, totalPages, combinedResults.length);
+            if (totalPages > 1) html += createPaginationHTML(page, totalPages, filteredLinks.length);
         }
-        contentArea.innerHTML = html;
+        document.getElementById('contentArea').innerHTML = html;
     }
 
     function createPaginationHTML(currentPage, totalPages, totalItems) {
@@ -820,9 +777,18 @@
         }, 300);
     });
 
+    // We now need to include the Telegram script before running our app
+    // const telegramScript = document.createElement('script');
+    // telegramScript.src = "https://telegram.org/js/telegram-web-app.js";
+    // telegramScript.onload = () => {
+    //     document.addEventListener('DOMContentLoaded', initializeApp);
+    // };
+    // document.head.appendChild(telegramScript);
+
     document.addEventListener('DOMContentLoaded', initializeApp);
 
 </script>
 
 </body>
 </html>
+
